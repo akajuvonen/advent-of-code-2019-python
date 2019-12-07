@@ -2,17 +2,56 @@ from typing import List
 import click
 
 
+# Pre-defined opcodes
+OPCODE_ADD = 1
+OPCODE_MULTIPLY = 2
+OPCODE_HALT = 99
+# How many steps to take to find the next opcode
+N_STEPS = 4
+
+
 def read_input(filename: str) -> List[int]:
     with open(filename) as f:
         intcode = f.read().rstrip('\n').split(',')
     return [int(x) for x in intcode]
 
+
+def compute(intcode: List[int]) -> List[int]:
+    new_intcode = intcode.copy()
+
+    # TODO what if at the end of the list and no 99
+    i = 0
+    while True:
+        opcode = new_intcode[i]
+        if opcode == OPCODE_HALT:
+            print('Opcode 99 found, halting program')
+            break
+        first_index = new_intcode[i+1]
+        second_index = new_intcode[i+2]
+        output_index = new_intcode[i+3]
+        if opcode == OPCODE_ADD:
+            new_intcode[output_index] = new_intcode[first_index] + new_intcode[second_index]
+        elif opcode == OPCODE_MULTIPLY:
+            new_intcode[output_index] = new_intcode[first_index] * new_intcode[second_index]
+        else:
+            raise ValueError(f'Opcode {opcode} not supported')
+        i += 4
+
+    return new_intcode
+
+
 @click.command()
-@click.option('--input-file', required=True, type=str,
+@click.option('--input-file', required=True, type=str, default='input.txt', show_default=True,
               help='Path to file containing Intcode program (comma-separated list)')
 def main(input_file):
     intcode = read_input(input_file)
-    print(intcode)
+
+    # Return the program to the 1202 program alarm state
+    intcode[1] = 12
+    intcode[2] = 2
+
+    new_intcode = compute(intcode)
+    print(new_intcode)
 
 
 if __name__ == '__main__':
