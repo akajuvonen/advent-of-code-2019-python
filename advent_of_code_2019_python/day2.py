@@ -26,22 +26,24 @@ def compute(intcode: List[int], noun: Optional[int] = None, verb: Optional[int] 
     if verb is not None:
         new_intcode[2] = verb
 
-    # TODO what if at the end of the list and no 99
-    i = 0
-    while True:
-        opcode = new_intcode[i]
-        if opcode == OPCODE_HALT:
-            break
-        first_index = new_intcode[i+1]
-        second_index = new_intcode[i+2]
-        output_index = new_intcode[i+3]
-        if opcode == OPCODE_ADD:
-            new_intcode[output_index] = new_intcode[first_index] + new_intcode[second_index]
-        elif opcode == OPCODE_MULTIPLY:
-            new_intcode[output_index] = new_intcode[first_index] * new_intcode[second_index]
-        else:
-            raise ValueError(f'Opcode {opcode} not supported')
-        i += 4
+    try:
+        i = 0
+        while True:
+            opcode = new_intcode[i]
+            if opcode == OPCODE_HALT:
+                break
+            first_index = new_intcode[i+1]
+            second_index = new_intcode[i+2]
+            output_index = new_intcode[i+3]
+            if opcode == OPCODE_ADD:
+                new_intcode[output_index] = new_intcode[first_index] + new_intcode[second_index]
+            elif opcode == OPCODE_MULTIPLY:
+                new_intcode[output_index] = new_intcode[first_index] * new_intcode[second_index]
+            else:
+                raise ValueError(f'Opcode {opcode} not supported')
+            i += 4
+    except IndexError:
+        print(f'Intcode index out of range, no instruction {OPCODE_HALT} found, stopping')
 
     return new_intcode
 
