@@ -18,11 +18,13 @@ def read_input(filename: str) -> List[int]:
     return [int(x) for x in intcode]
 
 
-def compute(intcode: List[int], noun: int, verb: int) -> List[int]:
+def compute(intcode: List[int], noun: Optional[int] = None, verb: Optional[int] = None) -> List[int]:
     new_intcode = intcode.copy()
     # Initialize noun and verb positions (index 1 and 2)
-    new_intcode[1] = noun
-    new_intcode[2] = verb
+    if noun is not None:
+        new_intcode[1] = noun
+    if verb is not None:
+        new_intcode[2] = verb
 
     # TODO what if at the end of the list and no 99
     i = 0
