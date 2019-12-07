@@ -8,10 +8,29 @@ def read_input(filename: str) -> List[int]:
 
 
 def calculate_fuel(mass: int) -> int:
+    """Calculates the amount of fuel needed for a module with mass `mass`.
+    Fuel needed for the mass of the fuel itself is not taken into account.
+
+    Arguments:
+        mass: Mass of the module to calculate needed fuel for.
+
+    Returns:
+        Amount of fuel needed for given mass excluding the fuel itself..
+    """
     return max(mass // 3 - 2, 0)
 
 
 def calculate_total_fuel(mass: int) -> int:
+    """Calculates total amount of fuel needed for a module with mass
+    `mass` including the mass of the fuel itself. Amounts rounding to 0
+    or negative are considered 0.
+
+    Arguments:
+        mass: Mass of the module to calculate needed fuel for.
+
+    Returns:
+        Total amount of fuel needed including the fuel itself.
+    """
     total_fuel = 0
     remaining_mass = mass
     while True:
