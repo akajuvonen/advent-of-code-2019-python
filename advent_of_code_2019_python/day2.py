@@ -1,6 +1,6 @@
-from typing import List, Tuple
-import click
+from typing import List, Optional, Tuple
 
+import click
 
 # Pre-defined opcodes
 OPCODE_ADD = 1
@@ -44,12 +44,13 @@ def compute(intcode: List[int], noun: int, verb: int) -> List[int]:
     return new_intcode
 
 
-def find_noun_verb(intcode: List[int], expected_output: int) -> Tuple[int, int]:
+def find_noun_verb(intcode: List[int], expected_output: int) -> Optional[Tuple[int, int]]:
     max_value = 99
     for noun in range(max_value + 1):
         for verb in range(max_value + 1):
             if compute(intcode, noun, verb)[0] == expected_output:
                 return noun, verb
+    return None
 
 
 @click.command()
