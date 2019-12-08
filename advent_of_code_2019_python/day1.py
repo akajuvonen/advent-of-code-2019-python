@@ -1,4 +1,5 @@
 from typing import List
+
 import click
 
 
@@ -42,7 +43,7 @@ def calculate_total_fuel(mass: int) -> int:
 
 
 @click.command()
-@click.option('--input-file', required=True, type=str,
+@click.option('--input-file', required=True, type=str, default='input.txt', show_default=True,
               help='Path to file containing module weights separated by newlines')
 def main(input_file):
     masses = read_input(input_file)
