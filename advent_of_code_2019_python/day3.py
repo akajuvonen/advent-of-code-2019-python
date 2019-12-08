@@ -34,18 +34,23 @@ def manhattan_distance_from_origin(x: int, y: int) -> int:
     return abs(x) + abs(y)
 
 
+def intersection_distances(wire_a_paths, wire_b_paths):
+    wire_a_points = wire_path_to_set(wire_a_paths)
+    wire_b_points = wire_path_to_set(wire_b_paths)
+
+    intersections = wire_a_points.intersection(wire_b_points)
+
+    return [manhattan_distance_from_origin(intersection[0], intersection[1]) for intersection in intersections]
+
+
+
 @click.command()
 @click.option('--input-file', required=True, type=str, default='inputs/input_day3.txt', show_default=True,
               help='Path to file containing wire paths (AoC Day3 input.txt)')
 def main(input_file):
     wire_a_paths, wire_b_paths = read_input(input_file)
 
-    wire_a_points = wire_path_to_set(wire_a_paths)
-    wire_b_points = wire_path_to_set(wire_b_paths)
-
-    intersections = wire_a_points.intersection(wire_b_points)
-
-    distances = [manhattan_distance_from_origin(intersection[0], intersection[1]) for intersection in intersections]
+    distances = intersection_distances(wire_a_paths, wire_b_paths)
     print(f'Minimum intersection distance: {min(distances)}')
 
 
