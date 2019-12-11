@@ -32,9 +32,15 @@ def manhattan_distance_from_origin(x: int, y: int) -> int:
     return abs(x) + abs(y)
 
 
-def min_distance(wire_a_points, wire_b_points):
+def intersection_distances(wire_a_points: List[Tuple[int, int]], wire_b_points: List[Tuple[int, int]]) -> int:
     intersections = set(wire_a_points).intersection(set(wire_b_points))
-    return min([manhattan_distance_from_origin(intersection[0], intersection[1]) for intersection in intersections])
+    distances = [manhattan_distance_from_origin(intersection[0], intersection[1]) for intersection in intersections]
+    return distances, intersections
+
+
+def intersection_steps(wire_a_points, wire_b_points, intersections):
+    return [wire_a_points.index(intersection) + wire_b_points.index(intersection) + 2
+            for intersection in intersections]
 
 
 @click.command()
@@ -45,8 +51,11 @@ def main(input_file):
     wire_a_points = [path for path in calculate_path(wire_a_paths)]
     wire_b_points = [path for path in calculate_path(wire_b_paths)]
 
-    distance = min_distance(wire_a_points, wire_b_points)
-    print(f'Minimum intersection distance: {distance}')
+    distances, intersections = intersection_distances(wire_a_points, wire_b_points)
+    print(f'Minimum intersection distance: {min(distances)}')
+
+    steps = intersection_steps(wire_a_points, wire_b_points, intersections)
+    print(f'Minimum steps to intersection: {min(steps)}')
 
 
 if __name__ == '__main__':
