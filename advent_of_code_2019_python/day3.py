@@ -1,5 +1,6 @@
+from typing import Generator, List, Tuple
+
 import click
-from typing import List, Tuple, Generator, Set
 
 
 def read_input(filename: str) -> Tuple[List[str], List[str]]:
@@ -8,7 +9,7 @@ def read_input(filename: str) -> Tuple[List[str], List[str]]:
     return wire_a.split(','), wire_b.split(',')
 
 
-def paths_to_points(paths: List[str]) -> Generator[Tuple[int, int], None, None]:
+def _paths_to_points(paths: List[str]) -> Generator[Tuple[int, int], None, None]:
     xy = (0, 0)
     for path in paths:
         direction = path[0]
@@ -32,9 +33,21 @@ def _manhattan_distance_from_origin(x: int, y: int) -> int:
     return abs(x) + abs(y)
 
 
-def min_intersection_dist_and_steps(paths_a, paths_b):
-    points_a = {point: steps + 1 for steps, point in enumerate(paths_to_points(paths_a))}
-    points_b = {point: steps + 1 for steps, point in enumerate(paths_to_points(paths_b))}
+def min_intersection_dist_and_steps(paths_a: List[str], paths_b: List[str]) -> Tuple[int, int]:
+    """Calculates the minimum intersection manhattan distance and minimum steps.
+
+    The first value (distance) is for the wire intersection closest to starting point.
+    The second (minimum steps) is minimum number of steps to a wire intersection.
+    The two intersections are not necessarily the same.
+
+    Arguments:
+        paths_a, paths_b: List of strings containing instructions on how many steps the wire extends
+            and in which direction. E.g., ['R11', 'L1', 'U23', ...]
+    Returns:
+        minimum distance, minimum steps
+    """
+    points_a = {point: steps + 1 for steps, point in enumerate(_paths_to_points(paths_a))}
+    points_b = {point: steps + 1 for steps, point in enumerate(_paths_to_points(paths_b))}
 
     intersections = set(points_a.keys()).intersection(set(points_b.keys()))
 

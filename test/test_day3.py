@@ -1,5 +1,5 @@
 import pytest
-from advent_of_code_2019_python.day3 import paths_to_points, min_intersection_dist_and_steps
+from advent_of_code_2019_python.day3 import min_intersection_dist_and_steps
 
 
 @pytest.mark.parametrize('paths_a, paths_b, expected_distance',
@@ -9,8 +9,6 @@ from advent_of_code_2019_python.day3 import paths_to_points, min_intersection_di
                           (['R98', 'U47', 'R26', 'D63', 'R33', 'U87', 'L62', 'D20', 'R33', 'U53', 'R51'],
                            ['U98', 'R91', 'D20', 'R16', 'D67', 'R40', 'U7', 'R15', 'U6', 'R7'], 135)])
 def test_minimum_distance(paths_a, paths_b, expected_distance):
-    points_a = [path for path in paths_to_points(paths_a)]
-    points_b = [path for path in paths_to_points(paths_b)]
     min_distance, _ = min_intersection_dist_and_steps(paths_a, paths_b)
     assert min_distance == expected_distance
 
@@ -21,7 +19,5 @@ def test_minimum_distance(paths_a, paths_b, expected_distance):
                           (['R98', 'U47', 'R26', 'D63', 'R33', 'U87', 'L62', 'D20', 'R33', 'U53', 'R51'],
                            ['U98', 'R91', 'D20', 'R16', 'D67', 'R40', 'U7', 'R15', 'U6', 'R7'], 410)])
 def test_minimum_steps(paths_a, paths_b, expected_steps):
-    points_a = [path for path in paths_to_points(paths_a)]
-    points_b = [path for path in paths_to_points(paths_b)]
     _, min_steps = min_intersection_dist_and_steps(paths_a, paths_b)
     assert min_steps == expected_steps
