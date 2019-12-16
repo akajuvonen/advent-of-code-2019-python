@@ -1,20 +1,22 @@
 import click
+from typing import Optional
 
 
 MIN_VALUE = 108457
 MAX_VALUE = 562041
 
 
-def _validate_passwd(passwd):
-    assert len(passwd) == 6
-    if any(passwd[i] > passwd[i+1] for i in range(5)):
+def _validate_passwd(passwd: str, group_size: int = 2) -> bool:
+    if len(passwd) != 6 or any(passwd[i] > passwd[i+1] for i in range(5)):
         return False
-    if len(set(passwd)) < len(passwd):
-        return True
+    uniques = set(passwd)
+    if len(uniques) < len(passwd):
+        if group_size and any(passwd.count(c) == group_size for c in uniques):
+            return True
     return False
 
 
-def calculate_n_passwords(min_value, max_value):
+def calculate_n_passwords(min_value: int, max_value: int) -> int:
     n_passwords = 0
     for passwd in range(min_value, max_value + 1):
         if _validate_passwd(str(passwd)):
