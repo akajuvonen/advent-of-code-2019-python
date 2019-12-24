@@ -1,6 +1,6 @@
 import pytest
 
-from advent_of_code_2019_python.day2 import compute
+from advent_of_code_2019_python import IntcodeComputer
 
 
 @pytest.mark.parametrize('intcode, expected',
@@ -9,4 +9,4 @@ from advent_of_code_2019_python.day2 import compute
                           ([2, 4, 4, 5, 99, 0], [2, 4, 4, 5, 99, 9801]),
                           ([1, 1, 1, 4, 99, 5, 6, 0, 99], [30, 1, 1, 4, 2, 5, 6, 0, 99])])
 def test_compute(intcode, expected):
-    assert compute(intcode) == expected
+    assert IntcodeComputer.compute(intcode) == expected
