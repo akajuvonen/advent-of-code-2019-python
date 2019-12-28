@@ -8,60 +8,58 @@ OPCODE_OUTPUT = 4
 OPCODE_HALT = 99
 
 
-class IntcodeComputer:
+def compute_intcode(intcode: List[int], noun: Optional[int] = None, verb: Optional[int] = None, input_value: int = 1) \
+        -> List[int]:
+    """Computes  an intcode program result.
+    The intcode program contains an opcode (1, 2, or 99 for add, multiply, halt respectively)
+    and two input indices. The results after performing specified operation is saved to
+    output index. The next opcode is always 4 steps after the previous one.
+    Check https://adventofcode.com/2019/day/2 for details on what it's supposed to do.
 
-    @staticmethod
-    def compute(intcode: List[int], noun: Optional[int] = None, verb: Optional[int] = None, input_value: int = 1) \
-            -> List[int]:
-        """Computes  an intcode program result.
-        The intcode program contains an opcode (1, 2, or 99 for add, multiply, halt respectively)
-        and two input indices. The results after performing specified operation is saved to
-        output index. The next opcode is always 4 steps after the previous one.
-        Check https://adventofcode.com/2019/day/2 for details on what it's supposed to do.
+    Arguments:
+        intcode: List of integers containing opcodes, two input positions and
+            output positions to save the result to.
+        noun: An integer at index 1, known as noun. Affects the final results.
+        verb: An integer at index 2, known as verb.
+        input_value: An integer given as input to the program.
 
-        Arguments:
-            intcode: List of integers containing opcodes, two input positions and
-                output positions to save the result to.
-            noun: An integer at index 1, known as noun. Affects the final results.
-            verb: An integer at index 2, known as verb.
-            input_value: An integer given as input to the program.
+    Returns:
+        Final intcode program after performing all the operations.
+    """
+    new_intcode = intcode.copy()
+    # Initialize noun and verb positions (index 1 and 2)
+    if noun is not None:
+        new_intcode[1] = noun
+    if verb is not None:
+        new_intcode[2] = verb
 
-        Returns:
-            Final intcode program after performing all the operations.
-        """
-        new_intcode = intcode.copy()
-        # Initialize noun and verb positions (index 1 and 2)
-        if noun is not None:
-            new_intcode[1] = noun
-        if verb is not None:
-            new_intcode[2] = verb
+    try:
+        i = 0
+        while True:
+            # The last two digits of the instruction
+            opcode = new_intcode[i] % 100
+            if opcode == OPCODE_HALT:
+                break
+            first_index = new_intcode[i+1]
+            n_steps = 4
+            if opcode == OPCODE_ADD:
+                second_index = new_intcode[i + 2]
+                output_index = new_intcode[i + 3]
+                new_intcode[output_index] = new_intcode[first_index] + new_intcode[second_index]
+            elif opcode == OPCODE_MULTIPLY:
+                second_index = new_intcode[i + 2]
+                output_index = new_intcode[i + 3]
+                new_intcode[output_index] = new_intcode[first_index] * new_intcode[second_index]
+            elif opcode == OPCODE_INPUT:
+                new_intcode[first_index] = input_value
+                n_steps = 2
+            elif opcode == OPCODE_OUTPUT:
+                print(new_intcode[first_index])
+                n_steps = 2
+            else:
+                raise ValueError(f'Opcode {opcode} not supported')
+            i += n_steps
+    except IndexError:
+        print(f'Intcode index out of range, no instruction {OPCODE_HALT} found, stopping')
 
-        try:
-            i = 0
-            while True:
-                opcode = new_intcode[i]
-                if opcode == OPCODE_HALT:
-                    break
-                first_index = new_intcode[i+1]
-                n_steps = 4
-                if opcode == OPCODE_ADD:
-                    second_index = new_intcode[i + 2]
-                    output_index = new_intcode[i + 3]
-                    new_intcode[output_index] = new_intcode[first_index] + new_intcode[second_index]
-                elif opcode == OPCODE_MULTIPLY:
-                    second_index = new_intcode[i + 2]
-                    output_index = new_intcode[i + 3]
-                    new_intcode[output_index] = new_intcode[first_index] * new_intcode[second_index]
-                elif opcode == OPCODE_INPUT:
-                    new_intcode[first_index] = input_value
-                    n_steps = 2
-                elif opcode == OPCODE_OUTPUT:
-                    print(new_intcode[first_index])
-                    n_steps = 2
-                else:
-                    raise ValueError(f'Opcode {opcode} not supported')
-                i += n_steps
-        except IndexError:
-            print(f'Intcode index out of range, no instruction {OPCODE_HALT} found, stopping')
-
-        return new_intcode
+    return new_intcode

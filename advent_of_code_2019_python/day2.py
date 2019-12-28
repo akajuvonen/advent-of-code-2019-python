@@ -1,5 +1,5 @@
 from typing import List, Optional, Tuple
-from advent_of_code_2019_python import IntcodeComputer
+from advent_of_code_2019_python import intcode_computer
 
 import click
 
@@ -27,7 +27,7 @@ def find_noun_verb(intcode: List[int], expected_output: int) -> Optional[Tuple[i
     max_value = 99
     for noun in range(max_value + 1):
         for verb in range(max_value + 1):
-            if IntcodeComputer.compute(intcode, noun, verb)[0] == expected_output:
+            if intcode_computer.compute_intcode(intcode, noun, verb)[0] == expected_output:
                 return noun, verb
     return None
 
@@ -39,7 +39,7 @@ def main(input_file):
     intcode = read_input(input_file)
 
     # Return the program to the 1202 program alarm state and get result
-    new_intcode = IntcodeComputer.compute(intcode, 12, 2)
+    new_intcode = intcode_computer.compute_intcode(intcode, 12, 2)
     print(new_intcode)
     print(f'Program output at index 0: {new_intcode[0]}')
 
