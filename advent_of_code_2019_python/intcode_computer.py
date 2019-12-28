@@ -78,3 +78,9 @@ def _pop_last_digit(instruction):
     digit = instruction % 10
     instruction //= 10
     return digit, instruction
+
+
+def read_input(filename: str) -> List[int]:
+    with open(filename) as f:
+        intcode = f.read().rstrip('\n').split(',')
+    return [int(x) for x in intcode]
