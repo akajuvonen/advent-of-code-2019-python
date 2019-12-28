@@ -17,3 +17,11 @@ def test_input():
     intcode = [3, 0, 99]
     expected = [1, 0, 99]
     assert IntcodeComputer.compute(intcode=intcode, input=input) == expected
+
+
+def test_output(capsys):
+    intcode = [4, 0, 99]
+    expected = 4
+    IntcodeComputer.compute(intcode=intcode)
+    captured = capsys.readouterr()
+    assert captured.out.rstrip('\n') == str(expected)

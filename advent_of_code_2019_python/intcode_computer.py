@@ -4,9 +4,8 @@ from typing import List, Optional
 OPCODE_ADD = 1
 OPCODE_MULTIPLY = 2
 OPCODE_INPUT = 3
+OPCODE_OUTPUT = 4
 OPCODE_HALT = 99
-# How many steps to take to find the next opcode
-N_STEPS = 4
 
 
 class IntcodeComputer:
@@ -44,6 +43,7 @@ class IntcodeComputer:
                 if opcode == OPCODE_HALT:
                     break
                 first_index = new_intcode[i+1]
+                n_steps = 4
                 if opcode == OPCODE_ADD:
                     second_index = new_intcode[i + 2]
                     output_index = new_intcode[i + 3]
@@ -52,11 +52,15 @@ class IntcodeComputer:
                     second_index = new_intcode[i + 2]
                     output_index = new_intcode[i + 3]
                     new_intcode[output_index] = new_intcode[first_index] * new_intcode[second_index]
-                elif OPCODE_INPUT:
+                elif opcode == OPCODE_INPUT:
                     new_intcode[first_index] = input
+                    n_steps = 2
+                elif opcode == OPCODE_OUTPUT:
+                    print(new_intcode[first_index])
+                    n_steps = 2
                 else:
                     raise ValueError(f'Opcode {opcode} not supported')
-                i += N_STEPS
+                i += n_steps
         except IndexError:
             print(f'Intcode index out of range, no instruction {OPCODE_HALT} found, stopping')
 
