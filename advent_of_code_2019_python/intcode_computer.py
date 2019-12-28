@@ -3,6 +3,7 @@ from typing import List, Optional
 # Pre-defined opcodes
 OPCODE_ADD = 1
 OPCODE_MULTIPLY = 2
+OPCODE_INPUT = 3
 OPCODE_HALT = 99
 # How many steps to take to find the next opcode
 N_STEPS = 4
@@ -43,12 +44,16 @@ class IntcodeComputer:
                 if opcode == OPCODE_HALT:
                     break
                 first_index = new_intcode[i+1]
-                second_index = new_intcode[i+2]
-                output_index = new_intcode[i+3]
                 if opcode == OPCODE_ADD:
+                    second_index = new_intcode[i + 2]
+                    output_index = new_intcode[i + 3]
                     new_intcode[output_index] = new_intcode[first_index] + new_intcode[second_index]
                 elif opcode == OPCODE_MULTIPLY:
+                    second_index = new_intcode[i + 2]
+                    output_index = new_intcode[i + 3]
                     new_intcode[output_index] = new_intcode[first_index] * new_intcode[second_index]
+                elif OPCODE_INPUT:
+                    new_intcode[first_index] = input
                 else:
                     raise ValueError(f'Opcode {opcode} not supported')
                 i += N_STEPS

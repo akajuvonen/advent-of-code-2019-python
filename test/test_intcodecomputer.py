@@ -10,3 +10,10 @@ from advent_of_code_2019_python import IntcodeComputer
                           ([1, 1, 1, 4, 99, 5, 6, 0, 99], [30, 1, 1, 4, 2, 5, 6, 0, 99])])
 def test_compute(intcode, expected):
     assert IntcodeComputer.compute(intcode) == expected
+
+
+def test_input():
+    input = 1
+    intcode = [3, 0, 99]
+    expected = [1, 0, 99]
+    assert IntcodeComputer.compute(intcode=intcode, input=input) == expected
