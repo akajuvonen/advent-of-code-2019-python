@@ -37,24 +37,33 @@ def compute_intcode(intcode: List[int], noun: Optional[int] = None, verb: Option
         i = 0
         while True:
             # The last two digits of the instruction
-            opcode = new_intcode[i] % 100
+            instruction = new_intcode[i]
+            opcode = instruction % 100
+            instruction //= 100
             if opcode == OPCODE_HALT:
                 break
-            first_index = new_intcode[i+1]
             n_steps = 4
             if opcode == OPCODE_ADD:
-                second_index = new_intcode[i + 2]
-                output_index = new_intcode[i + 3]
-                new_intcode[output_index] = new_intcode[first_index] + new_intcode[second_index]
+                first_param_mode, instruction = _pop_last_digit(instruction)
+                second_param_mode, instruction = _pop_last_digit(instruction)
+                first_value = new_intcode[i+1] if first_param_mode else new_intcode[new_intcode[i+1]]
+                second_value = new_intcode[i+2] if second_param_mode else new_intcode[new_intcode[i+2]]
+                output_index = new_intcode[i+3]
+                new_intcode[output_index] = first_value + second_value
             elif opcode == OPCODE_MULTIPLY:
-                second_index = new_intcode[i + 2]
-                output_index = new_intcode[i + 3]
-                new_intcode[output_index] = new_intcode[first_index] * new_intcode[second_index]
+                first_param_mode, instruction = _pop_last_digit(instruction)
+                second_param_mode, instruction = _pop_last_digit(instruction)
+                first_value = new_intcode[i+1] if first_param_mode else new_intcode[new_intcode[i+1]]
+                second_value = new_intcode[i+2] if second_param_mode else new_intcode[new_intcode[i+2]]
+                output_index = new_intcode[i+3]
+                new_intcode[output_index] = first_value * second_value
             elif opcode == OPCODE_INPUT:
-                new_intcode[first_index] = input_value
+                new_intcode[new_intcode[i+1]] = input_value
                 n_steps = 2
             elif opcode == OPCODE_OUTPUT:
-                print(new_intcode[first_index])
+                param_mode, instruction = _pop_last_digit(instruction)
+                output_value = new_intcode[i+1] if param_mode else new_intcode[new_intcode[i+1]]
+                print(output_value)
                 n_steps = 2
             else:
                 raise ValueError(f'Opcode {opcode} not supported')
@@ -63,3 +72,9 @@ def compute_intcode(intcode: List[int], noun: Optional[int] = None, verb: Option
         print(f'Intcode index out of range, no instruction {OPCODE_HALT} found, stopping')
 
     return new_intcode
+
+
+def _pop_last_digit(instruction):
+    digit = instruction % 10
+    instruction //= 10
+    return digit, instruction
