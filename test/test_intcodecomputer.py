@@ -13,10 +13,10 @@ def test_compute(intcode, expected):
 
 
 def test_input():
-    input = 1
+    input_value = 1
     intcode = [3, 0, 99]
     expected = [1, 0, 99]
-    assert IntcodeComputer.compute(intcode=intcode, input=input) == expected
+    assert IntcodeComputer.compute(intcode=intcode, input_value=input_value) == expected
 
 
 def test_output(capsys):

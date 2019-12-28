@@ -11,7 +11,7 @@ OPCODE_HALT = 99
 class IntcodeComputer:
 
     @staticmethod
-    def compute(intcode: List[int], noun: Optional[int] = None, verb: Optional[int] = None, input: int = 1) \
+    def compute(intcode: List[int], noun: Optional[int] = None, verb: Optional[int] = None, input_value: int = 1) \
             -> List[int]:
         """Computes  an intcode program result.
         The intcode program contains an opcode (1, 2, or 99 for add, multiply, halt respectively)
@@ -24,7 +24,7 @@ class IntcodeComputer:
                 output positions to save the result to.
             noun: An integer at index 1, known as noun. Affects the final results.
             verb: An integer at index 2, known as verb.
-            input: An integer given as input to the program.
+            input_value: An integer given as input to the program.
 
         Returns:
             Final intcode program after performing all the operations.
@@ -53,7 +53,7 @@ class IntcodeComputer:
                     output_index = new_intcode[i + 3]
                     new_intcode[output_index] = new_intcode[first_index] * new_intcode[second_index]
                 elif opcode == OPCODE_INPUT:
-                    new_intcode[first_index] = input
+                    new_intcode[first_index] = input_value
                     n_steps = 2
                 elif opcode == OPCODE_OUTPUT:
                     print(new_intcode[first_index])
