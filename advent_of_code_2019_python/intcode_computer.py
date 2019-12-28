@@ -11,7 +11,8 @@ N_STEPS = 4
 class IntcodeComputer:
 
     @staticmethod
-    def compute(intcode: List[int], noun: Optional[int] = None, verb: Optional[int] = None) -> List[int]:
+    def compute(intcode: List[int], noun: Optional[int] = None, verb: Optional[int] = None, input: int = 1) \
+            -> List[int]:
         """Computes  an intcode program result.
         The intcode program contains an opcode (1, 2, or 99 for add, multiply, halt respectively)
         and two input indices. The results after performing specified operation is saved to
@@ -23,6 +24,7 @@ class IntcodeComputer:
                 output positions to save the result to.
             noun: An integer at index 1, known as noun. Affects the final results.
             verb: An integer at index 2, known as verb.
+            input: An integer given as input to the program.
 
         Returns:
             Final intcode program after performing all the operations.
