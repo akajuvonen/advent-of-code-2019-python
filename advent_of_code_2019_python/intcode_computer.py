@@ -49,48 +49,40 @@ class IntcodeComputer:
                 self.instruction //= 100
                 if opcode == OPCODE_HALT:
                     break
-                n_steps = 4
                 if opcode == OPCODE_ADD:
-                    self._add_or_multiply()
+                    self._output_to_index(self._next_value + self._next_value)
                 elif opcode == OPCODE_MULTIPLY:
-                    self._add_or_multiply(multiply=True)
+                    self._output_to_index(self._next_value * self._next_value)
                 elif opcode == OPCODE_INPUT:
-                    self.intcode[self.intcode[self.instr_pointer+1]] = input_value
-                    n_steps = 2
+                    self._output_to_index(input_value)
                 elif opcode == OPCODE_OUTPUT:
-                    param_mode = self._pop_last_digit()
-                    output_value = self.intcode[self.instr_pointer+1] if param_mode else self.intcode[self.intcode[
-                        self.instr_pointer+1]]
-                    print(output_value)
-                    n_steps = 2
+                    print(self._next_value)
                 else:
                     raise ValueError(f'Opcode {opcode} not supported')
-                self.instr_pointer += n_steps
+                self.instr_pointer += 1
         except IndexError:
             print(f'Intcode index out of range, no instruction {OPCODE_HALT} found, stopping')
 
-    def _add_or_multiply(self, multiply=False):
-        first_param_mode = self._pop_last_digit()
-        second_param_mode = self._pop_last_digit()
-        first_value = self.intcode[self.instr_pointer + 1] if first_param_mode else self.intcode[
-            self.intcode[self.instr_pointer + 1]]
-        second_value = self.intcode[self.instr_pointer + 2] if second_param_mode else self.intcode[
-            self.intcode[self.instr_pointer + 2]]
-        output_index = self.intcode[self.instr_pointer + 3]
-        if multiply:
-            self.intcode[output_index] = first_value * second_value
-        else:
-            self.intcode[output_index] = first_value + second_value
+    def _output_to_index(self, value: int):
+        """Output value to the position defined by the next intcode step."""
+        self.instr_pointer += 1
+        output_index = self.intcode[self.instr_pointer]
+        self.intcode[output_index] = value
 
     def reset(self):
+        """Reset computer to its original state before the program was run"""
         self.intcode = self.orig_intcode.copy()
         self.instr_pointer = 0
 
     @property
     def output(self):
+        """Output defined in AoC day 2 is the value in the first position."""
         return self.intcode[0]
 
-    def _pop_last_digit(self):
-        digit = self.instruction % 10
+    @property
+    def _next_value(self):
+        """Simultaneously parse the next parameter mode (0 or 1), increment pointer and return value"""
+        param_mode = self.instruction % 10
         self.instruction //= 10
-        return digit
+        self.instr_pointer += 1
+        return self.intcode[self.instr_pointer] if param_mode else self.intcode[self.intcode[self.instr_pointer]]
