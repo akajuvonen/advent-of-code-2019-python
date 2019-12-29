@@ -29,3 +29,9 @@ def test_immediatemode():
     intcode_computer = IntcodeComputer(intcode)
     intcode_computer.compute()
     assert intcode_computer.intcode == expected
+
+
+@pytest.mark.parametrize('intcode', [([1005, 0, 3, 99]), ([1106, 0, 3, 99])])
+def test_jump_instructions(intcode):
+    intcode_computer = IntcodeComputer(intcode)
+    intcode_computer.compute()
