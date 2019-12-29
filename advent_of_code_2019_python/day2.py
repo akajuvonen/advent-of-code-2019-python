@@ -1,17 +1,18 @@
-from typing import List, Optional, Tuple
-from advent_of_code_2019_python import intcode_computer
+from typing import Optional, Tuple
 
 import click
+
+from advent_of_code_2019_python import IntcodeComputer
 
 EXPECTED_OUTPUT = 19690720
 
 
-def find_noun_verb(intcode: List[int], expected_output: int) -> Optional[Tuple[int, int]]:
+def find_noun_verb(intcode_computer: IntcodeComputer, expected_output: int) -> Optional[Tuple[int, int]]:
     """Finds integers at intcode indices 1 and 2 that produce the expected output
     on a given intcode program.
 
     Arguments:
-        intcode: Intcode program as a list.
+        intcode_computer: Intcode computer loaded with the desired intcode program.
         expected_output: The expected output integer that should be stored at index 0
             after executing the program.
 
@@ -21,7 +22,9 @@ def find_noun_verb(intcode: List[int], expected_output: int) -> Optional[Tuple[i
     max_value = 99
     for noun in range(max_value + 1):
         for verb in range(max_value + 1):
-            if intcode_computer.compute_intcode(intcode, noun, verb)[0] == expected_output:
+            intcode_computer.reset()
+            intcode_computer.compute_intcode(noun=noun, verb=verb)
+            if intcode_computer.output == expected_output:
                 return noun, verb
     return None
 
@@ -30,15 +33,14 @@ def find_noun_verb(intcode: List[int], expected_output: int) -> Optional[Tuple[i
 @click.option('--input-file', required=True, type=str, default='inputs/input_day2.txt', show_default=True,
               help='Path to file containing Intcode program (comma-separated list)')
 def main(input_file):
-    intcode = intcode_computer.read_input(input_file)
+    intcode_computer = IntcodeComputer.from_file(input_file)
 
     # Return the program to the 1202 program alarm state and get result
-    new_intcode = intcode_computer.compute_intcode(intcode, 12, 2)
-    print(new_intcode)
-    print(f'Program output at index 0: {new_intcode[0]}')
+    intcode_computer.compute_intcode(noun=12, verb=2)
+    print(f'Program output at index 0: {intcode_computer.output}')
 
     # Find inputs in positions 1 and 2 that produce the expected output
-    noun, verb = find_noun_verb(intcode, EXPECTED_OUTPUT)
+    noun, verb = find_noun_verb(intcode_computer, EXPECTED_OUTPUT)
     print(f'Pair of inputs that produce output {EXPECTED_OUTPUT}: {noun} and {verb}')
 
 
