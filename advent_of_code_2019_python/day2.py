@@ -23,7 +23,7 @@ def find_noun_verb(intcode_computer: IntcodeComputer, expected_output: int) -> O
     for noun in range(max_value + 1):
         for verb in range(max_value + 1):
             intcode_computer.reset()
-            intcode_computer.compute_intcode(noun=noun, verb=verb)
+            intcode_computer.compute(noun=noun, verb=verb)
             if intcode_computer.output == expected_output:
                 return noun, verb
     return None
@@ -36,7 +36,7 @@ def main(input_file):
     intcode_computer = IntcodeComputer.from_file(input_file)
 
     # Return the program to the 1202 program alarm state and get result
-    intcode_computer.compute_intcode(noun=12, verb=2)
+    intcode_computer.compute(noun=12, verb=2)
     print(f'Program output at index 0: {intcode_computer.output}')
 
     # Find inputs in positions 1 and 2 that produce the expected output

@@ -25,8 +25,8 @@ class IntcodeComputer:
             intcode = f.read().rstrip('\n').split(',')
         return cls([int(x) for x in intcode])
 
-    def compute_intcode(self, noun: Optional[int] = None, verb: Optional[int] = None,
-                        input_value: int = 1):
+    def compute(self, noun: Optional[int] = None, verb: Optional[int] = None,
+                input_value: int = 1):
         """Computes an intcode program result.
 
         Arguments:
