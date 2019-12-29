@@ -1,56 +1,114 @@
 from typing import List, Optional
 
+import attr
+
 # Pre-defined opcodes
 OPCODE_ADD = 1
 OPCODE_MULTIPLY = 2
+# Take input and save to position
+OPCODE_INPUT = 3
+# Print output
+OPCODE_OUTPUT = 4
+# Jump to a specified position if value non-zero
+OPCODE_JUMPIFTRUE = 5
+# Jump to a specified location if zero
+OPCODE_JUMPIFFALSE = 6
+# Output 1 to position if first parameter less than second, otherwise 0
+OPCODE_LESSTHAN = 7
+# Output 1 if parameters equal, otherwise 0
+OPCODE_EQUALS = 8
 OPCODE_HALT = 99
-# How many steps to take to find the next opcode
-N_STEPS = 4
 
 
+@attr.s
 class IntcodeComputer:
+    intcode: List[int] = attr.ib()
+    orig_intcode: List[int] = attr.ib(init=False)
+    instruction: int = attr.ib(init=False)
+    instr_pointer: int = attr.ib(init=False, default=0)
 
-    @staticmethod
-    def compute(intcode: List[int], noun: Optional[int] = None, verb: Optional[int] = None) -> List[int]:
-        """Computes  an intcode program result.
-        The intcode program contains an opcode (1, 2, or 99 for add, multiply, halt respectively)
-        and two input indices. The results after performing specified operation is saved to
-        output index. The next opcode is always 4 steps after the previous one.
-        Check https://adventofcode.com/2019/day/2 for details on what it's supposed to do.
+    @orig_intcode.default
+    def _init_orig_intcode(self):
+        return self.intcode.copy()
+
+    @classmethod
+    def from_file(cls, filename: str):
+        with open(filename) as f:
+            intcode = f.read().rstrip('\n').split(',')
+        return cls([int(x) for x in intcode])
+
+    def compute(self, noun: Optional[int] = None, verb: Optional[int] = None, input_value: int = 1):
+        """Computes an intcode program result.
 
         Arguments:
-            intcode: List of integers containing opcodes, two input positions and
-                output positions to save the result to.
             noun: An integer at index 1, known as noun. Affects the final results.
             verb: An integer at index 2, known as verb.
-
-        Returns:
-            Final intcode program after performing all the operations.
+            input_value: An integer given as input to the program.
         """
-        new_intcode = intcode.copy()
         # Initialize noun and verb positions (index 1 and 2)
         if noun is not None:
-            new_intcode[1] = noun
+            self.intcode[1] = noun
         if verb is not None:
-            new_intcode[2] = verb
+            self.intcode[2] = verb
 
         try:
-            i = 0
             while True:
-                opcode = new_intcode[i]
+                # The last two digits of the instruction
+                self.instruction = self.intcode[self.instr_pointer]
+                opcode = self.instruction % 100
+                self.instruction //= 100
                 if opcode == OPCODE_HALT:
                     break
-                first_index = new_intcode[i+1]
-                second_index = new_intcode[i+2]
-                output_index = new_intcode[i+3]
                 if opcode == OPCODE_ADD:
-                    new_intcode[output_index] = new_intcode[first_index] + new_intcode[second_index]
+                    self._output_to_index(self._next_value + self._next_value)
                 elif opcode == OPCODE_MULTIPLY:
-                    new_intcode[output_index] = new_intcode[first_index] * new_intcode[second_index]
+                    self._output_to_index(self._next_value * self._next_value)
+                elif opcode == OPCODE_INPUT:
+                    self._output_to_index(input_value)
+                elif opcode == OPCODE_OUTPUT:
+                    print(self._next_value)
+                elif opcode == OPCODE_JUMPIFTRUE:
+                    value = self._next_value
+                    new_pointer = self._next_value
+                    if value:
+                        self.instr_pointer = new_pointer
+                        continue
+                elif opcode == OPCODE_JUMPIFFALSE:
+                    value = self._next_value
+                    new_pointer = self._next_value
+                    if not value:
+                        self.instr_pointer = new_pointer
+                        continue
+                elif opcode == OPCODE_LESSTHAN:
+                    self._output_to_index(1 if self._next_value < self._next_value else 0)
+                elif opcode == OPCODE_EQUALS:
+                    self._output_to_index(1 if self._next_value == self._next_value else 0)
                 else:
                     raise ValueError(f'Opcode {opcode} not supported')
-                i += N_STEPS
+                self.instr_pointer += 1
         except IndexError:
             print(f'Intcode index out of range, no instruction {OPCODE_HALT} found, stopping')
 
-        return new_intcode
+    def _output_to_index(self, value: int):
+        """Output value to the position defined by the next intcode step."""
+        self.instr_pointer += 1
+        output_index = self.intcode[self.instr_pointer]
+        self.intcode[output_index] = value
+
+    def reset(self):
+        """Reset computer to its original state before the program was run"""
+        self.intcode = self.orig_intcode.copy()
+        self.instr_pointer = 0
+
+    @property
+    def output(self):
+        """Output defined in AoC day 2 is the value in the first position."""
+        return self.intcode[0]
+
+    @property
+    def _next_value(self):
+        """Simultaneously parse the next parameter mode (0 or 1), increment pointer and return value"""
+        param_mode = self.instruction % 10
+        self.instruction //= 10
+        self.instr_pointer += 1
+        return self.intcode[self.instr_pointer] if param_mode else self.intcode[self.intcode[self.instr_pointer]]

@@ -7,5 +7,5 @@ setup(
     description='Advent of Code 2019 solutions in Python',
     author='Antti Juvonen',
     packages=find_packages(),
-    install_requires=['click']
+    install_requires=['click', 'attr']
 )
