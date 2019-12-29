@@ -5,11 +5,17 @@ import attr
 # Pre-defined opcodes
 OPCODE_ADD = 1
 OPCODE_MULTIPLY = 2
+# Take input and save to position
 OPCODE_INPUT = 3
+# Print output
 OPCODE_OUTPUT = 4
+# Jump to a specified position if value non-zero
 OPCODE_JUMPIFTRUE = 5
+# Jump to a specified location if zero
 OPCODE_JUMPIFFALSE = 6
+# Output 1 to position if first parameter less than second, otherwise 0
 OPCODE_LESSTHAN = 7
+# Output 1 if parameters equal, otherwise 0
 OPCODE_EQUALS = 8
 OPCODE_HALT = 99
 
@@ -62,11 +68,17 @@ class IntcodeComputer:
                 elif opcode == OPCODE_OUTPUT:
                     print(self._next_value)
                 elif opcode == OPCODE_JUMPIFTRUE:
-                    if self._next_value != 0:
-                        self.instr_pointer = self._next_value
+                    value = self._next_value
+                    new_pointer = self._next_value
+                    if value:
+                        self.instr_pointer = new_pointer
+                        continue
                 elif opcode == OPCODE_JUMPIFFALSE:
-                    if self._next_value == 0:
-                        self.instr_pointer = self._next_value
+                    value = self._next_value
+                    new_pointer = self._next_value
+                    if not value:
+                        self.instr_pointer = new_pointer
+                        continue
                 elif opcode == OPCODE_LESSTHAN:
                     self._output_to_index(1 if self._next_value < self._next_value else 0)
                 elif opcode == OPCODE_EQUALS:
