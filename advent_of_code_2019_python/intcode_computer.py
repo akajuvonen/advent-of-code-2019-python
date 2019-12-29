@@ -9,6 +9,8 @@ OPCODE_INPUT = 3
 OPCODE_OUTPUT = 4
 OPCODE_JUMPIFTRUE = 5
 OPCODE_JUMPIFFALSE = 6
+OPCODE_LESSTHAN = 7
+OPCODE_EQUALS = 8
 OPCODE_HALT = 99
 
 
@@ -65,6 +67,10 @@ class IntcodeComputer:
                 elif opcode == OPCODE_JUMPIFFALSE:
                     if self._next_value == 0:
                         self.instr_pointer = self._next_value
+                elif opcode == OPCODE_LESSTHAN:
+                    self._output_to_index(1 if self._next_value < self._next_value else 0)
+                elif opcode == OPCODE_EQUALS:
+                    self._output_to_index(1 if self._next_value == self._next_value else 0)
                 else:
                     raise ValueError(f'Opcode {opcode} not supported')
                 self.instr_pointer += 1
