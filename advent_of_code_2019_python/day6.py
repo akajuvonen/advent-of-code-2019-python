@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Deque
+from collections import deque
 
 import attr
 import click
@@ -9,7 +10,6 @@ import click
 @attr.s(auto_attribs=True)
 class SpaceObject:
     name: str
-    parent: Optional[SpaceObject] = None
     orbiters: List[SpaceObject] = attr.Factory(list)
 
     def add_orbiter(self, orbiter: SpaceObject):
@@ -50,6 +50,32 @@ def _traverse_objects(space_object: SpaceObject, count: int) -> int:
     return total + count
 
 
+def calculate_orbital_transfers(first_name: str, second_name: str, root: SpaceObject):
+    first_path = []
+    _calculate_path(first_name, first_path, root)
+    second_path = []
+    _calculate_path(second_name, second_path, root)
+    j = 0
+    for i in range(min(len(first_path), len(second_path))):
+        if first_path[i] == second_path[i]:
+            j += 1
+    return len(first_path) + len(second_path) - 2*j
+
+
+def _calculate_path(name: str, path: list, node: SpaceObject):
+    if node.name == name:
+        return True
+
+    path.append(node.name)
+
+    for orbiter in node.orbiters:
+        if _calculate_path(name, path, orbiter):
+            return True
+
+    path.pop()
+    return False
+
+
 @click.command()
 @click.option('--input-file', required=True, type=str, default='inputs/input_day6.txt', show_default=True,
               help='Path to file containing space object orbits')
@@ -61,6 +87,8 @@ def main(input_file):
     univ_center_of_mass = populate_orbits(orbit_list)
     orbit_count = calculate_orbits(univ_center_of_mass)
     print(orbit_count)
+
+    print(calculate_orbital_transfers('YOU', 'SAN', univ_center_of_mass))
 
 
 if __name__ == '__main__':
