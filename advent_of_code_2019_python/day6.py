@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Deque
-from collections import deque
+from typing import Dict, List
 
 import attr
 import click
@@ -17,6 +16,15 @@ class SpaceObject:
 
 
 def populate_orbits(orbit_list: List[str]) -> SpaceObject:
+    """
+    Create all objects in space and populate their orbiter lists.
+
+    Arguments:
+        orbit_list: List of orbit instruction strings, like 'A)B' meaning B orbits A.
+
+    Returns:
+        Universal center of mass which acts as a root node.
+    """
     orbit_dict: Dict[str, List[str]] = {}
     for orbit in orbit_list:
         [center_of_mass, orbiter] = orbit.split(')')
@@ -29,6 +37,7 @@ def populate_orbits(orbit_list: List[str]) -> SpaceObject:
 
 
 def _add_orbiters(space_object: SpaceObject, orbit_dict: Dict[str, list]):
+    """Recursively populate space objects and their child orbiter lists."""
     if space_object.name not in orbit_dict:
         return
     for orbiter_name in orbit_dict[space_object.name]:
@@ -38,10 +47,21 @@ def _add_orbiters(space_object: SpaceObject, orbit_dict: Dict[str, list]):
 
 
 def calculate_orbits(univ_center_of_mass: SpaceObject) -> int:
+    """
+    Calculate the total number of direct and indirect orbits.
+
+    Arguments
+        univ_center_of_mass: Root object in space.
+
+    Returns:
+        Total orbit count.
+    """
     return _traverse_objects(univ_center_of_mass, 0)
 
 
 def _traverse_objects(space_object: SpaceObject, count: int) -> int:
+    """Recursively traverse the space object tree, adding all counts and increasing it each level.
+    This equals the number of direct and indirect orbits."""
     if not space_object.orbiters:
         return count
     total = 0
@@ -50,11 +70,24 @@ def _traverse_objects(space_object: SpaceObject, count: int) -> int:
     return total + count
 
 
-def calculate_orbital_transfers(first_name: str, second_name: str, root: SpaceObject):
-    first_path = []
+def calculate_orbital_transfers(first_name: str, second_name: str, root: SpaceObject) -> int:
+    """
+    Calculates the number of orbital transfers required between two objects.
+
+    Arguments:
+        first_name: Name of the first object.
+        second_name: Name of the second object.
+        root: Root node (universal center of mass).
+
+    Returns:
+        Total orbital transfer count.
+    """
+    first_path: List[str] = []
     _calculate_path(first_name, first_path, root)
-    second_path = []
+    second_path: List[str] = []
     _calculate_path(second_name, second_path, root)
+    # Calculate the number of common nodes in the path and subtract from sum of lengths
+    # to get the total orbital transfer count
     j = 0
     for i in range(min(len(first_path), len(second_path))):
         if first_path[i] == second_path[i]:
@@ -62,7 +95,9 @@ def calculate_orbital_transfers(first_name: str, second_name: str, root: SpaceOb
     return len(first_path) + len(second_path) - 2*j
 
 
-def _calculate_path(name: str, path: list, node: SpaceObject):
+def _calculate_path(name: str, path: list, node: SpaceObject) -> bool:
+    """Recursively get a path from root to an object. This is a typical tree path calculation
+    algorithm which saves the path into given list."""
     if node.name == name:
         return True
 
