@@ -1,4 +1,4 @@
-from advent_of_code_2019_python.day6 import populate_orbits, calculate_orbits
+from advent_of_code_2019_python.day6 import calculate_orbits, populate_orbits
 
 
 def test_calculate_orbits():

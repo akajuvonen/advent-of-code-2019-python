@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Dict
+from typing import Dict, List, Optional
 
 import attr
 import click
@@ -9,6 +9,7 @@ import click
 @attr.s(auto_attribs=True)
 class SpaceObject:
     name: str
+    parent: Optional[SpaceObject] = None
     orbiters: List[SpaceObject] = attr.Factory(list)
 
     def add_orbiter(self, orbiter: SpaceObject):
@@ -16,7 +17,7 @@ class SpaceObject:
 
 
 def populate_orbits(orbit_list: List[str]) -> SpaceObject:
-    orbit_dict = {}
+    orbit_dict: Dict[str, List[str]] = {}
     for orbit in orbit_list:
         [center_of_mass, orbiter] = orbit.split(')')
         if center_of_mass not in orbit_dict:
