@@ -109,3 +109,7 @@ class IntcodeComputer:
         self.instruction //= 10
         self.instr_pointer += 1
         return self.intcode[self.instr_pointer] if param_mode else self.intcode[self.intcode[self.instr_pointer]]
+
+    def print_output(self):
+        for output in self.output:
+            print(output)

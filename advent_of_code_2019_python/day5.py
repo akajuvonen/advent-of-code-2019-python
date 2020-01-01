@@ -10,11 +10,13 @@ def main(input_file):
     print('Airconditioner unit test output (ID: 1)')
     intcode_computer = IntcodeComputer.from_file(input_file)
     intcode_computer.compute(input_value=1)
+    intcode_computer.print_output()
 
     intcode_computer.reset()
 
     print('Thermal radiatior controller test output (ID: 5)')
     intcode_computer.compute(input_value=5)
+    intcode_computer.print_output()
 
 
 if __name__ == '__main__':
