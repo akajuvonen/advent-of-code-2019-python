@@ -1,5 +1,5 @@
-from typing import List, Optional, Deque
 from collections import deque
+from typing import Deque, List, Optional
 
 import attr
 

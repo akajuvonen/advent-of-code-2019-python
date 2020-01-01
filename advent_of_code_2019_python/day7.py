@@ -1,10 +1,12 @@
+from itertools import permutations
+from typing import Optional
+
 import click
 
 from advent_of_code_2019_python import IntcodeComputer
-from itertools import permutations
 
 
-def calculate_max_thruster_signal(intcode_computer: IntcodeComputer) -> int:
+def calculate_max_thruster_signal(intcode_computer: IntcodeComputer) -> Optional[int]:
     max_thruster_signal = None
     for permutation in permutations(range(5)):
         output = 0

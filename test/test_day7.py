@@ -1,4 +1,5 @@
 import pytest
+
 from advent_of_code_2019_python import IntcodeComputer
 from advent_of_code_2019_python.day7 import calculate_max_thruster_signal
 
