@@ -70,7 +70,7 @@ class IntcodeComputer:
                 elif opcode == OPCODE_MULTIPLY:
                     self._output_to_index(self._next_value * self._next_value)
                 elif opcode == OPCODE_INPUT:
-                    self._output_to_index(self.inputs.pop())
+                    self._output_to_index(self.inputs.popleft())
                 elif opcode == OPCODE_OUTPUT:
                     self.output.append(self._next_value)
                 elif opcode == OPCODE_JUMPIFTRUE:

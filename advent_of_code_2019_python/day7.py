@@ -5,7 +5,7 @@ from itertools import permutations
 
 
 def calculate_max_thruster_signal(intcode_computer: IntcodeComputer) -> int:
-    max_thruster_signal = 0
+    max_thruster_signal = None
     for permutation in permutations(range(5)):
         output = 0
         for phase_setting in permutation:
@@ -13,7 +13,7 @@ def calculate_max_thruster_signal(intcode_computer: IntcodeComputer) -> int:
             output = intcode_computer.output[0]
             intcode_computer.reset()
         final_thruster_signal = output
-        if final_thruster_signal > max_thruster_signal:
+        if max_thruster_signal is None or final_thruster_signal > max_thruster_signal:
             max_thruster_signal = final_thruster_signal
     return max_thruster_signal
 
