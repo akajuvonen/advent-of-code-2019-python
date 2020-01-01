@@ -1,9 +1,39 @@
 from itertools import permutations
 from typing import Optional
+import copy
 
 import click
 
 from advent_of_code_2019_python import IntcodeComputer
+
+
+def calculate_max_thruster_signal_feedback(intcode_computer: IntcodeComputer) -> int:
+    max_thruster_signal = None
+    for permutation in permutations(range(5, 10)):
+        # Initialize all computers
+        computers = []
+        output = 0
+        for phase_setting in permutation:
+            new_computer = copy.deepcopy(intcode_computer)
+            new_computer.compute(input_value=phase_setting)
+            new_computer.compute(input_value=output)
+            output = new_computer.output
+            computers.append(new_computer)
+        # Continue the feedback loop until halt
+        halted = False
+        while True:
+            if halted:
+                final_thruster_signal = output
+                break
+            for computer in computers:
+                computer.compute(input_value=output)
+                if computer.halted:
+                    halted = True
+                    break
+                output = computer.output
+        if max_thruster_signal is None or final_thruster_signal > max_thruster_signal:
+            max_thruster_signal = final_thruster_signal
+    return max_thruster_signal
 
 
 def calculate_max_thruster_signal(intcode_computer: IntcodeComputer) -> Optional[int]:
@@ -28,6 +58,10 @@ def main(input_file):
     intcode_computer = IntcodeComputer.from_file(input_file)
     max_thruster_signal = calculate_max_thruster_signal(intcode_computer)
     print(max_thruster_signal)
+
+    intcode_computer.reset()
+    max_thruster_signal_feedback = calculate_max_thruster_signal_feedback(intcode_computer)
+    print(max_thruster_signal_feedback)
 
 
 if __name__ == '__main__':
