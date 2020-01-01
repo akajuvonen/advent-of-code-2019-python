@@ -101,11 +101,6 @@ class IntcodeComputer:
         self.instr_pointer = 0
 
     @property
-    def output(self):
-        """Output defined in AoC day 2 is the value in the first position."""
-        return self.intcode[0]
-
-    @property
     def _next_value(self):
         """Simultaneously parse the next parameter mode (0 or 1), increment pointer and return value"""
         param_mode = self.instruction % 10
