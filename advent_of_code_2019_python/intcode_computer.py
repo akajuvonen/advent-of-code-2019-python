@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import List, Optional, Deque
+from collections import deque
 
 import attr
 
@@ -27,6 +28,7 @@ class IntcodeComputer:
     instruction: int = attr.ib(init=False)
     instr_pointer: int = attr.ib(init=False, default=0)
     output: List[int] = attr.ib(factory=list)
+    inputs: Deque[int] = attr.ib(init=False, factory=deque)
 
     @orig_intcode.default
     def _init_orig_intcode(self):
@@ -38,14 +40,17 @@ class IntcodeComputer:
             intcode = f.read().rstrip('\n').split(',')
         return cls([int(x) for x in intcode])
 
-    def compute(self, noun: Optional[int] = None, verb: Optional[int] = None, input_value: int = 1):
+    def compute(self, inputs: Optional[List[int]] = None, noun: Optional[int] = None, verb: Optional[int] = None):
         """Computes an intcode program result.
 
         Arguments:
             noun: An integer at index 1, known as noun. Affects the final results.
             verb: An integer at index 2, known as verb.
-            input_value: An integer given as input to the program.
+            inputs: An integer given as input to the program.
         """
+        if inputs is not None:
+            self.inputs = deque(inputs)
+
         # Initialize noun and verb positions (index 1 and 2)
         if noun is not None:
             self.intcode[1] = noun
@@ -65,7 +70,7 @@ class IntcodeComputer:
                 elif opcode == OPCODE_MULTIPLY:
                     self._output_to_index(self._next_value * self._next_value)
                 elif opcode == OPCODE_INPUT:
-                    self._output_to_index(input_value)
+                    self._output_to_index(self.inputs.pop())
                 elif opcode == OPCODE_OUTPUT:
                     self.output.append(self._next_value)
                 elif opcode == OPCODE_JUMPIFTRUE:
@@ -101,6 +106,7 @@ class IntcodeComputer:
         self.intcode = self.orig_intcode.copy()
         self.instr_pointer = 0
         self.output = []
+        self.inputs = deque()
 
     @property
     def _next_value(self):

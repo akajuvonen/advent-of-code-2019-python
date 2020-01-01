@@ -15,21 +15,21 @@ def test_compute(intcode, expected):
 
 
 def test_input():
-    input_value = 1
+    input_values = [1]
     intcode = [3, 0, 99]
     expected = [1, 0, 99]
     intcode_computer = IntcodeComputer(intcode)
-    intcode_computer.compute(input_value=input_value)
+    intcode_computer.compute(inputs=input_values)
     assert intcode_computer.intcode == expected
 
 
 def test_output():
-    input_value = -1
+    input_value = [-1]
     intcode = [3, 0, 4, 0, 99]
     intcode_computer = IntcodeComputer(intcode)
-    intcode_computer.compute(input_value=input_value)
+    intcode_computer.compute(inputs=input_value)
     assert len(intcode_computer.output) == 1
-    assert intcode_computer.output[0] == input_value
+    assert intcode_computer.output[0] == input_value[0]
 
 
 def test_immediatemode():
