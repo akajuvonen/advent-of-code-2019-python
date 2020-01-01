@@ -26,6 +26,7 @@ class IntcodeComputer:
     orig_intcode: List[int] = attr.ib(init=False)
     instruction: int = attr.ib(init=False)
     instr_pointer: int = attr.ib(init=False, default=0)
+    output: List[int] = attr.ib(factory=list)
 
     @orig_intcode.default
     def _init_orig_intcode(self):
@@ -66,7 +67,7 @@ class IntcodeComputer:
                 elif opcode == OPCODE_INPUT:
                     self._output_to_index(input_value)
                 elif opcode == OPCODE_OUTPUT:
-                    print(self._next_value)
+                    self.output.append(self._next_value)
                 elif opcode == OPCODE_JUMPIFTRUE:
                     value = self._next_value
                     new_pointer = self._next_value
@@ -99,6 +100,7 @@ class IntcodeComputer:
         """Reset computer to its original state before the program was run"""
         self.intcode = self.orig_intcode.copy()
         self.instr_pointer = 0
+        self.output = []
 
     @property
     def _next_value(self):
