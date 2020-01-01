@@ -27,8 +27,8 @@ class IntcodeComputer:
     orig_intcode: List[int] = attr.ib(init=False)
     instruction: int = attr.ib(init=False)
     instr_pointer: int = attr.ib(init=False, default=0)
-    output: List[int] = attr.ib(factory=list)
-    inputs: Deque[int] = attr.ib(init=False, factory=deque)
+    output: int = attr.ib(init=False, default=None)
+    halted: bool = attr.ib(init=False, default=False)
 
     @orig_intcode.default
     def _init_orig_intcode(self):
@@ -40,17 +40,14 @@ class IntcodeComputer:
             intcode = f.read().rstrip('\n').split(',')
         return cls([int(x) for x in intcode])
 
-    def compute(self, inputs: Optional[List[int]] = None, noun: Optional[int] = None, verb: Optional[int] = None):
+    def compute(self, input_value: Optional[int] = None, noun: Optional[int] = None, verb: Optional[int] = None):
         """Computes an intcode program result.
 
         Arguments:
             noun: An integer at index 1, known as noun. Affects the final results.
             verb: An integer at index 2, known as verb.
-            inputs: An integer given as input to the program.
+            input_value: An integer given as input to the program.
         """
-        if inputs is not None:
-            self.inputs = deque(inputs)
-
         # Initialize noun and verb positions (index 1 and 2)
         if noun is not None:
             self.intcode[1] = noun
@@ -64,15 +61,21 @@ class IntcodeComputer:
                 opcode = self.instruction % 100
                 self.instruction //= 100
                 if opcode == OPCODE_HALT:
+                    self.halted = True
                     break
                 if opcode == OPCODE_ADD:
                     self._output_to_index(self._next_value + self._next_value)
                 elif opcode == OPCODE_MULTIPLY:
                     self._output_to_index(self._next_value * self._next_value)
                 elif opcode == OPCODE_INPUT:
-                    self._output_to_index(self.inputs.popleft())
+                    if input_value is None:
+                        break
+                    self._output_to_index(input_value)
+                    input_value = None
                 elif opcode == OPCODE_OUTPUT:
-                    self.output.append(self._next_value)
+                    self.output = self._next_value
+                    self.instr_pointer += 1
+                    break
                 elif opcode == OPCODE_JUMPIFTRUE:
                     value = self._next_value
                     new_pointer = self._next_value
@@ -105,8 +108,6 @@ class IntcodeComputer:
         """Reset computer to its original state before the program was run"""
         self.intcode = self.orig_intcode.copy()
         self.instr_pointer = 0
-        self.output = []
-        self.inputs = deque()
 
     @property
     def _next_value(self):
@@ -115,7 +116,3 @@ class IntcodeComputer:
         self.instruction //= 10
         self.instr_pointer += 1
         return self.intcode[self.instr_pointer] if param_mode else self.intcode[self.intcode[self.instr_pointer]]
-
-    def print_output(self):
-        for output in self.output:
-            print(output)

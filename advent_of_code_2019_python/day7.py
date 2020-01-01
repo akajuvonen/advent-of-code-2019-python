@@ -11,8 +11,9 @@ def calculate_max_thruster_signal(intcode_computer: IntcodeComputer) -> Optional
     for permutation in permutations(range(5)):
         output = 0
         for phase_setting in permutation:
-            intcode_computer.compute(inputs=[phase_setting, output])
-            output = intcode_computer.output[0]
+            intcode_computer.compute(input_value=phase_setting)
+            intcode_computer.compute(input_value=output)
+            output = intcode_computer.output
             intcode_computer.reset()
         final_thruster_signal = output
         if max_thruster_signal is None or final_thruster_signal > max_thruster_signal:
