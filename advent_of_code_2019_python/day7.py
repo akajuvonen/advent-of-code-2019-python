@@ -1,6 +1,6 @@
+import copy
 from itertools import permutations
 from typing import Optional
-import copy
 
 import click
 
