@@ -40,20 +40,12 @@ class IntcodeComputer:
             intcode = f.read().rstrip('\n').split(',')
         return cls([int(x) for x in intcode])
 
-    def compute(self, input_value: Optional[int] = None, noun: Optional[int] = None, verb: Optional[int] = None):
+    def compute(self, input_value: Optional[int] = None):
         """Computes an intcode program result.
 
         Arguments:
-            noun: An integer at index 1, known as noun. Affects the final results.
-            verb: An integer at index 2, known as verb.
             input_value: An integer given as input to the program.
         """
-        # Initialize noun and verb positions (index 1 and 2)
-        if noun is not None:
-            self.intcode[1] = noun
-        if verb is not None:
-            self.intcode[2] = verb
-
         try:
             while True:
                 # The last two digits of the instruction
