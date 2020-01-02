@@ -7,7 +7,23 @@ import click
 from advent_of_code_2019_python import IntcodeComputer
 
 
-def calculate_max_thruster_signal_feedback(intcode_computer: IntcodeComputer) -> int:
+def calculate_max_thruster_signal_feedback(intcode_computer: IntcodeComputer) -> Optional[int]:
+    """
+    Calculates maximum thruster signal that can be obtained with some combination of amplifier phase settings
+    using a feedback loop.
+
+    The computer will keep computing without stopping until waiting for input, or they just output something. When the
+    final amplifier halts, the program is done and the last output is the thruster signal.
+
+    Like the non-feedback version, different permutation of phase settings are attempted and maximum thruster signal
+    is returned.
+
+    Arguments:
+        intcode_computer: Intcode computer loaded with the correct program. This will be coped to all amplifiers.
+
+    Returns:
+        Maximum amplified thruster signal.
+    """
     max_thruster_signal = None
     for permutation in permutations(range(5, 10)):
         # Initialize all computers
@@ -37,6 +53,15 @@ def calculate_max_thruster_signal_feedback(intcode_computer: IntcodeComputer) ->
 
 
 def calculate_max_thruster_signal(intcode_computer: IntcodeComputer) -> Optional[int]:
+    """
+    Calculates max thruster signal using connected intcode computers with some permutations of phase setting.
+
+    Arguments:
+        intcode_computer: Intcode computer loaded with the correct program.
+
+    Returns:
+        Maximum signal that can be obtained with some permutation of phase settings.
+    """
     max_thruster_signal = None
     for permutation in permutations(range(5)):
         output = 0
