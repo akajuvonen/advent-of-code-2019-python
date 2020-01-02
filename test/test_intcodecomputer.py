@@ -23,6 +23,14 @@ def test_input():
     assert intcode_computer.intcode == expected
 
 
+def test_output():
+    input_value = -1
+    intcode = [3, 0, 4, 0, 99]
+    intcode_computer = IntcodeComputer(intcode)
+    intcode_computer.compute(input_value=input_value)
+    assert intcode_computer.output == input_value
+
+
 def test_immediatemode():
     intcode = [1002, 4, 3, 4, 33]
     expected = [1002, 4, 3, 4, 99]

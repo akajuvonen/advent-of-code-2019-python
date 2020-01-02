@@ -23,9 +23,11 @@ def find_noun_verb(intcode_computer: IntcodeComputer, expected_output: int) -> O
     for noun in range(max_value + 1):
         for verb in range(max_value + 1):
             intcode_computer.reset()
-            intcode_computer.compute(noun=noun, verb=verb)
-            if intcode_computer.output == expected_output:
-                return noun, verb
+            intcode_computer.intcode[1] = noun
+            intcode_computer.intcode[2] = verb
+            intcode_computer.compute()
+            if intcode_computer.intcode[0] == expected_output:
+                return intcode_computer.intcode[1], intcode_computer.intcode[2]
     return None
 
 
@@ -36,8 +38,10 @@ def main(input_file):
     intcode_computer = IntcodeComputer.from_file(input_file)
 
     # Return the program to the 1202 program alarm state and get result
-    intcode_computer.compute(noun=12, verb=2)
-    print(f'Program output at index 0: {intcode_computer.output}')
+    intcode_computer.intcode[1] = 12
+    intcode_computer.intcode[2] = 2
+    intcode_computer.compute()
+    print(f'Program output at index 0: {intcode_computer.intcode[0]}')
 
     # Find inputs in positions 1 and 2 that produce the expected output
     noun, verb = find_noun_verb(intcode_computer, EXPECTED_OUTPUT)
