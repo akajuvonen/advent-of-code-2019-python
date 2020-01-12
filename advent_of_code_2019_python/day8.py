@@ -39,6 +39,10 @@ def image_corruption_check(image: np.ndarray) -> int:
     return ones * twos
 
 
+def generate_image(image: np.ndarray) -> np.ndarray:
+    return np.array([1, 2, 3])
+
+
 @click.command()
 @click.option('--input-file', required=True, type=str, default='inputs/input_day8.txt', show_default=True,
               help='Path to image file encoded in Space Image Format')
@@ -47,6 +51,7 @@ def main(input_file):
     height = 6
     image = load_image(input_file, width, height)
 
+    print("Image checksum:")
     print(image_corruption_check(image))
 
 
