@@ -16,6 +16,14 @@ def main(input_file):
     height = 6
     image = load_image(input_file, width, height)
 
+    zeros_in_layers = np.array([layer.size - np.count_nonzero(layer) for layer in image])
+    fewest_zeros_layer_idx = np.argmin(zeros_in_layers)
+    fewest_zeros_layer = image[fewest_zeros_layer_idx]
+    ones = np.count_nonzero(fewest_zeros_layer == 1)
+    twos = np.count_nonzero(fewest_zeros_layer == 2)
+    print("Number of digits 1 and 2 multiplied (in the layer with fewest 0 digits:)")
+    print(ones * twos)
+
 
 if __name__ == '__main__':
     main()
