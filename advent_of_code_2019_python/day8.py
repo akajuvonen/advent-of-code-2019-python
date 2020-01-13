@@ -39,8 +39,26 @@ def image_corruption_check(image: np.ndarray) -> int:
     return ones * twos
 
 
-def generate_image(image: np.ndarray) -> np.ndarray:
-    return np.array([1, 2, 3])
+def generate_image(input_image: np.ndarray) -> np.ndarray:
+    """
+    Generate a final image based on Space Image Format.
+    The first non-transparent layer is displayed.
+
+    Arguments:
+        input_image: Original multi-layered image.
+
+    Returns:
+        Final single-layer image.
+    """
+    layers, height, width = input_image.shape
+    output_image = np.full((height, width), 2)
+    for i in range(height):
+        for j in range(width):
+            for k in range(layers):
+                if input_image[k][i][j] != 2:
+                    output_image[i][j] = input_image[k][i][j]
+                    break
+    return output_image
 
 
 @click.command()
@@ -53,6 +71,11 @@ def main(input_file):
 
     print("Image checksum:")
     print(image_corruption_check(image))
+
+    print("Final image:")
+    # Make reading the text easier
+    np.set_printoptions(formatter={'all': lambda x: 'X' if x == 1 else ' '})
+    print(generate_image(image))
 
 
 if __name__ == '__main__':
