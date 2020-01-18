@@ -8,16 +8,15 @@ from advent_of_code_2019_python import IntcodeComputer
               help='Path to file containing Intcode program (comma-separated list)')
 def main(input_file):
     print('Air conditioner unit test output (ID: 1)')
-    intcode_computer = IntcodeComputer.from_file(input_file)
-    intcode_computer.compute(input_value=1)
+    intcode_computer = IntcodeComputer.from_file(input_file, [1])
+    intcode_computer.compute()
     while not intcode_computer.halted:
         print(intcode_computer.output)
         intcode_computer.compute()
 
-    intcode_computer.reset()
-
     print('Thermal radiator controller test output (ID: 5)')
-    intcode_computer.compute(input_value=5)
+    intcode_computer = IntcodeComputer.from_file(input_file, [5])
+    intcode_computer.compute()
     print(intcode_computer.output)
 
 

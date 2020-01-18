@@ -134,10 +134,12 @@ class IntcodeComputer:
         self.inputs.reverse()
 
     @classmethod
-    def from_file(cls, filename: str):
+    def from_file(cls, filename: str, inputs: Optional[List[int]] = None):
         with open(filename) as f:
             intcode = f.read().rstrip('\n').split(',')
-        return cls([int(x) for x in intcode])
+        if inputs is None:
+            inputs = []
+        return cls([int(x) for x in intcode], inputs)
 
     def compute(self):
         """Computes an intcode program result.
