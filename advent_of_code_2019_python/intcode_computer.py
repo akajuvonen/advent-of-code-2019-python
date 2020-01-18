@@ -45,49 +45,49 @@ class IntcodeComputer:
         Arguments:
             input_value: An integer given as input to the program.
         """
-        try:
-            while True:
-                # The last two digits of the instruction
-                self.instruction = self.intcode[self.instr_pointer]
-                opcode = self.instruction % 100
-                self.instruction //= 100
-                if opcode == OPCODE_HALT:
-                    self.halted = True
-                    break
-                if opcode == OPCODE_ADD:
-                    self._output_to_index(self._next_value + self._next_value)
-                elif opcode == OPCODE_MULTIPLY:
-                    self._output_to_index(self._next_value * self._next_value)
-                elif opcode == OPCODE_INPUT:
-                    if input_value is None:
-                        break
-                    self._output_to_index(input_value)
-                    input_value = None
-                elif opcode == OPCODE_OUTPUT:
-                    self.output = self._next_value
-                    self.instr_pointer += 1
-                    break
-                elif opcode == OPCODE_JUMPIFTRUE:
-                    value = self._next_value
-                    new_pointer = self._next_value
-                    if value:
-                        self.instr_pointer = new_pointer
-                        continue
-                elif opcode == OPCODE_JUMPIFFALSE:
-                    value = self._next_value
-                    new_pointer = self._next_value
-                    if not value:
-                        self.instr_pointer = new_pointer
-                        continue
-                elif opcode == OPCODE_LESSTHAN:
-                    self._output_to_index(1 if self._next_value < self._next_value else 0)
-                elif opcode == OPCODE_EQUALS:
-                    self._output_to_index(1 if self._next_value == self._next_value else 0)
-                else:
-                    raise ValueError(f'Opcode {opcode} not supported')
+        while not self.halted:
+            # The last two digits of the instruction
+            self.instruction = self.intcode[self.instr_pointer]
+            opcode = self.instruction % 100
+            self.instruction //= 100
+            if opcode == OPCODE_HALT:
+                self.halted = True
+            elif opcode == OPCODE_ADD:
+                self._output_to_index(self._next_value + self._next_value)
                 self.instr_pointer += 1
-        except IndexError:
-            print(f'Intcode index out of range, no instruction {OPCODE_HALT} found, stopping')
+            elif opcode == OPCODE_MULTIPLY:
+                self._output_to_index(self._next_value * self._next_value)
+                self.instr_pointer += 1
+            elif opcode == OPCODE_INPUT:
+                if input_value is None:
+                    break
+                self._output_to_index(input_value)
+                input_value = None
+                self.instr_pointer += 1
+            elif opcode == OPCODE_OUTPUT:
+                self.output = self._next_value
+                self.instr_pointer += 1
+                break
+            elif opcode == OPCODE_JUMPIFTRUE:
+                value = self._next_value
+                new_pointer = self._next_value
+                if value:
+                    self.instr_pointer = new_pointer
+                else:
+                    self.instr_pointer += 1
+            elif opcode == OPCODE_JUMPIFFALSE:
+                value = self._next_value
+                new_pointer = self._next_value
+                if not value:
+                    self.instr_pointer = new_pointer
+                else:
+                    self.instr_pointer += 1
+            elif opcode == OPCODE_LESSTHAN:
+                self._output_to_index(1 if self._next_value < self._next_value else 0)
+                self.instr_pointer += 1
+            elif opcode == OPCODE_EQUALS:
+                self._output_to_index(1 if self._next_value == self._next_value else 0)
+                self.instr_pointer += 1
 
     def _output_to_index(self, value: int):
         """Output value to the position defined by the next intcode step."""
