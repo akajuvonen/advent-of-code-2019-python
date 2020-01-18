@@ -10,9 +10,7 @@ def main(input_file):
     print('Air conditioner unit test output (ID: 1)')
     intcode_computer = IntcodeComputer.from_file(input_file)
     intcode_computer.compute(input_value=1)
-    while True:
-        if intcode_computer.halted:
-            break
+    while not intcode_computer.halted:
         print(intcode_computer.output)
         intcode_computer.compute()
 
