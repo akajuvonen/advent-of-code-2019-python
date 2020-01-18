@@ -1,6 +1,6 @@
-from typing import List, Optional
-from enum import Enum, auto
 from abc import ABC, abstractmethod
+from enum import Enum, auto
+from typing import List, Optional
 
 import attr
 
@@ -24,7 +24,7 @@ class IntcodeOperation(ABC):
         return self.intcode[self.instr_pointer] // 100
 
     @abstractmethod
-    def execute(self, input_func) -> None:
+    def execute(self, input_func) -> Optional[int]:
         pass
 
     def _output_to_index(self, value: int):

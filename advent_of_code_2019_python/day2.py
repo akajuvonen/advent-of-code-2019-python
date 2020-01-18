@@ -1,5 +1,5 @@
-from typing import Optional, Tuple
 import copy
+from typing import Optional, Tuple
 
 import click
 
