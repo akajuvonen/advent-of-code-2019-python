@@ -24,7 +24,7 @@ class IntcodeOperation(ABC):
         return self.intcode[self.instr_pointer] // 100
 
     @abstractmethod
-    def execute(self, input_value: Optional[int]) -> None:
+    def execute(self, input_func) -> None:
         pass
 
     def _output_to_index(self, value: int):
@@ -43,36 +43,41 @@ class IntcodeOperation(ABC):
 
 
 class AddOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int]) -> None:
+    def execute(self, input_func) -> None:
         self._output_to_index(self._next_value + self._next_value)
         self.instr_pointer += 1
 
 
 class MultiplyOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int]) -> None:
+    def execute(self, input_func) -> None:
         self._output_to_index(self._next_value * self._next_value)
         self.instr_pointer += 1
 
 
 class InputOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int]) -> None:
-        # if input_value is None: status = PAUSED
+    def execute(self, input_func) -> None:
+        # if input_func is None: status = PAUSED
         # else below
-        if input_value is not None:
-            self._output_to_index(input_value)
+        input_func = input_func()
+        if input_func is not None:
+            self._output_to_index(input_func)
             self.instr_pointer += 1
+            self.paused = False
+        else:
+            self.paused = True
 
 
 class OutputOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int]) -> int:
+    paused: bool = attr.ib(init=False, default=True)
+
+    def execute(self, input_func) -> int:
         output = self._next_value
         self.instr_pointer += 1
-        # self.status = Status.PAUSED
         return output
 
 
 class JumpIfTrueOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int]) -> None:
+    def execute(self, input_func) -> None:
         value = self._next_value
         new_pointer = self._next_value
         if value:
@@ -82,7 +87,7 @@ class JumpIfTrueOperation(IntcodeOperation):
 
 
 class JumpIfFalseOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int]) -> None:
+    def execute(self, input_func) -> None:
         value = self._next_value
         new_pointer = self._next_value
         if not value:
@@ -92,13 +97,13 @@ class JumpIfFalseOperation(IntcodeOperation):
 
 
 class LessThanOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int]) -> None:
+    def execute(self, input_func) -> None:
         self._output_to_index(1 if self._next_value < self._next_value else 0)
         self.instr_pointer += 1
 
 
 class EqualsOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int]) -> None:
+    def execute(self, input_func) -> None:
         self._output_to_index(1 if self._next_value == self._next_value else 0)
         self.instr_pointer += 1
 
@@ -107,7 +112,7 @@ class EqualsOperation(IntcodeOperation):
 class HaltOperation(IntcodeOperation):
     halted: bool = attr.ib(init=False, default=True)
 
-    def execute(self, input_value: Optional[int]) -> None:
+    def execute(self, input_func) -> None:
         pass
 
 
@@ -143,22 +148,21 @@ class IntcodeComputer:
 
     def compute(self):
         """Computes an intcode program result.
-
-        Arguments:
-            input_value: An integer given as input to the program.
         """
         while not self.halted:
-            input_value = self.next_input
             opcode = self.intcode[self.instr_pointer] % 100
             operation = OPERATIONS[opcode](self.intcode, self.instr_pointer)
-            output = operation.execute(input_value)
-            self.instr_pointer = operation.instr_pointer
-            self.halted = operation.halted
+            output = operation.execute(self.next_input)
             if output is not None:
                 self.output = output
+            self.instr_pointer = operation.instr_pointer
+            self.halted = operation.halted
+            if operation.paused:
                 break
-            # remember to set input value to None after it's used
 
-    @property
+    def set_inputs(self, inputs: List[int]):
+        inputs.reverse()
+        self.inputs = inputs
+
     def next_input(self):
         return self.inputs.pop() if self.inputs else None

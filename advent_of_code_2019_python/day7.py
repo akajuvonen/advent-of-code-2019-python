@@ -31,8 +31,8 @@ def calculate_max_thruster_signal_feedback(intcode_computer: IntcodeComputer) ->
         output = 0
         for phase_setting in permutation:
             new_computer = copy.deepcopy(intcode_computer)
-            new_computer.compute(input_value=phase_setting)
-            new_computer.compute(input_value=output)
+            new_computer.set_inputs([phase_setting, output])
+            new_computer.compute()
             output = new_computer.output
             computers.append(new_computer)
         # Continue the feedback loop until halt
@@ -42,7 +42,8 @@ def calculate_max_thruster_signal_feedback(intcode_computer: IntcodeComputer) ->
                 final_thruster_signal = output
                 break
             for computer in computers:
-                computer.compute(input_value=output)
+                computer.set_inputs([output])
+                computer.compute()
                 if computer.halted:
                     halted = True
                     break
@@ -66,10 +67,10 @@ def calculate_max_thruster_signal(intcode_computer: IntcodeComputer) -> Optional
     for permutation in permutations(range(5)):
         output = 0
         for phase_setting in permutation:
-            intcode_computer.compute(input_value=phase_setting)
-            intcode_computer.compute(input_value=output)
-            output = intcode_computer.output
-            intcode_computer.reset()
+            new_computer = copy.deepcopy(intcode_computer)
+            new_computer.set_inputs([phase_setting, output])
+            new_computer.compute()
+            output = new_computer.output
         final_thruster_signal = output
         if max_thruster_signal is None or final_thruster_signal > max_thruster_signal:
             max_thruster_signal = final_thruster_signal
