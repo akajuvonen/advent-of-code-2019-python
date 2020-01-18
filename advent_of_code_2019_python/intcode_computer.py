@@ -58,15 +58,16 @@ class InputOperation(IntcodeOperation):
     def execute(self, input_func) -> None:
         # if input_func is None: status = PAUSED
         # else below
-        input_func = input_func()
-        if input_func is not None:
-            self._output_to_index(input_func)
+        input_value = input_func()
+        if input_value is not None:
+            self._output_to_index(input_value)
             self.instr_pointer += 1
             self.paused = False
         else:
             self.paused = True
 
 
+@attr.s
 class OutputOperation(IntcodeOperation):
     paused: bool = attr.ib(init=False, default=True)
 
@@ -160,9 +161,9 @@ class IntcodeComputer:
             if operation.paused:
                 break
 
-    def set_inputs(self, inputs: List[int]):
-        inputs.reverse()
-        self.inputs = inputs
+    def set_inputs(self, *inputs):
+        self.inputs = [i for i in inputs]
+        self.inputs.reverse()
 
     def next_input(self):
         return self.inputs.pop() if self.inputs else None
