@@ -126,14 +126,9 @@ OPERATIONS = {1: AddOperation,
 class IntcodeComputer:
     intcode: List[int]
     inputs: List[int] = attr.ib(factory=list)
-    orig_intcode: List[int] = attr.ib(init=False)
     instr_pointer: int = attr.ib(init=False, default=0)
     output: int = attr.ib(init=False, default=None)
     halted: bool = attr.ib(init=False, default=False)
-
-    @orig_intcode.default
-    def _init_orig_intcode(self):
-        return self.intcode.copy()
 
     def __attrs_post_init__(self):
         self.inputs.reverse()
@@ -165,8 +160,3 @@ class IntcodeComputer:
     @property
     def next_input(self):
         return self.inputs.pop() if self.inputs else None
-
-    def reset(self):
-        """Reset computer to its original state before the program was run"""
-        self.intcode = self.orig_intcode.copy()
-        self.instr_pointer = 0
