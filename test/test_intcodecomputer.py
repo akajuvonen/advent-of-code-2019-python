@@ -19,7 +19,8 @@ def test_input():
     intcode = [3, 0, 99]
     expected = [1, 0, 99]
     intcode_computer = IntcodeComputer(intcode)
-    intcode_computer.compute(input_value=input_value)
+    intcode_computer.set_inputs(input_value)
+    intcode_computer.compute()
     assert intcode_computer.intcode == expected
 
 
@@ -27,7 +28,8 @@ def test_output():
     input_value = -1
     intcode = [3, 0, 4, 0, 99]
     intcode_computer = IntcodeComputer(intcode)
-    intcode_computer.compute(input_value=input_value)
+    intcode_computer.set_inputs(input_value)
+    intcode_computer.compute()
     assert intcode_computer.output == input_value
 
 
