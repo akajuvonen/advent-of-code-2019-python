@@ -131,21 +131,16 @@ OPERATIONS = {1: AddOperation,
 @attr.s(auto_attribs=True)
 class IntcodeComputer:
     intcode: List[int]
-    inputs: List[int] = attr.ib(factory=list)
+    inputs: List[int] = attr.ib(init=False, factory=list)
     instr_pointer: int = attr.ib(init=False, default=0)
     output: int = attr.ib(init=False, default=None)
     halted: bool = attr.ib(init=False, default=False)
 
-    def __attrs_post_init__(self):
-        self.inputs.reverse()
-
     @classmethod
-    def from_file(cls, filename: str, inputs: Optional[List[int]] = None):
+    def from_file(cls, filename: str):
         with open(filename) as f:
             intcode = f.read().rstrip('\n').split(',')
-        if inputs is None:
-            inputs = []
-        return cls([int(x) for x in intcode], inputs)
+        return cls([int(x) for x in intcode])
 
     def compute(self):
         """Computes an intcode program result.
