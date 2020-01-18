@@ -24,7 +24,7 @@ class IntcodeOperation(ABC):
         return self.intcode[self.instr_pointer] // 100
 
     @abstractmethod
-    def execute(self, input_value: Optional[int] = None) -> None:
+    def execute(self, input_value: Optional[int]) -> None:
         pass
 
     def _output_to_index(self, value: int):
@@ -43,19 +43,19 @@ class IntcodeOperation(ABC):
 
 
 class AddOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int] = None) -> None:
+    def execute(self, input_value: Optional[int]) -> None:
         self._output_to_index(self._next_value + self._next_value)
         self.instr_pointer += 1
 
 
 class MultiplyOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int] = None) -> None:
+    def execute(self, input_value: Optional[int]) -> None:
         self._output_to_index(self._next_value * self._next_value)
         self.instr_pointer += 1
 
 
 class InputOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int] = None) -> None:
+    def execute(self, input_value: Optional[int]) -> None:
         # if input_value is None: status = PAUSED
         # else below
         if input_value is not None:
@@ -64,7 +64,7 @@ class InputOperation(IntcodeOperation):
 
 
 class OutputOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int] = None) -> int:
+    def execute(self, input_value: Optional[int]) -> int:
         output = self._next_value
         self.instr_pointer += 1
         # self.status = Status.PAUSED
@@ -72,7 +72,7 @@ class OutputOperation(IntcodeOperation):
 
 
 class JumpIfTrueOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int] = None) -> None:
+    def execute(self, input_value: Optional[int]) -> None:
         value = self._next_value
         new_pointer = self._next_value
         if value:
@@ -82,7 +82,7 @@ class JumpIfTrueOperation(IntcodeOperation):
 
 
 class JumpIfFalseOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int] = None) -> None:
+    def execute(self, input_value: Optional[int]) -> None:
         value = self._next_value
         new_pointer = self._next_value
         if not value:
@@ -92,13 +92,13 @@ class JumpIfFalseOperation(IntcodeOperation):
 
 
 class LessThanOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int] = None) -> None:
+    def execute(self, input_value: Optional[int]) -> None:
         self._output_to_index(1 if self._next_value < self._next_value else 0)
         self.instr_pointer += 1
 
 
 class EqualsOperation(IntcodeOperation):
-    def execute(self, input_value: Optional[int] = None) -> None:
+    def execute(self, input_value: Optional[int]) -> None:
         self._output_to_index(1 if self._next_value == self._next_value else 0)
         self.instr_pointer += 1
 
@@ -107,7 +107,7 @@ class EqualsOperation(IntcodeOperation):
 class HaltOperation(IntcodeOperation):
     halted: bool = attr.ib(init=False, default=True)
 
-    def execute(self, input_value: Optional[int] = None) -> None:
+    def execute(self, input_value: Optional[int]) -> None:
         pass
 
 
@@ -122,17 +122,21 @@ OPERATIONS = {1: AddOperation,
               99: HaltOperation}
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 class IntcodeComputer:
-    intcode: List[int] = attr.ib()
+    intcode: List[int]
+    inputs: List[int] = attr.ib(factory=list)
     orig_intcode: List[int] = attr.ib(init=False)
     instr_pointer: int = attr.ib(init=False, default=0)
     output: int = attr.ib(init=False, default=None)
-    status: Status = attr.ib(init=False, default=Status.RUNNING)
+    halted: bool = attr.ib(init=False, default=False)
 
     @orig_intcode.default
     def _init_orig_intcode(self):
         return self.intcode.copy()
+
+    def __attrs_post_init__(self):
+        self.inputs.reverse()
 
     @classmethod
     def from_file(cls, filename: str):
@@ -140,28 +144,27 @@ class IntcodeComputer:
             intcode = f.read().rstrip('\n').split(',')
         return cls([int(x) for x in intcode])
 
-    def compute(self, input_value: Optional[int] = None):
+    def compute(self):
         """Computes an intcode program result.
 
         Arguments:
             input_value: An integer given as input to the program.
         """
-        self.status = Status.RUNNING
-        while self.status is Status.RUNNING:
+        while not self.halted:
+            input_value = self.next_input
             opcode = self.intcode[self.instr_pointer] % 100
             operation = OPERATIONS[opcode](self.intcode, self.instr_pointer)
             output = operation.execute(input_value)
             self.instr_pointer = operation.instr_pointer
+            self.halted = operation.halted
             if output is not None:
                 self.output = output
-                self.status = Status.PAUSED
-            if operation.halted:
-                self.status = Status.HALTED
+                break
             # remember to set input value to None after it's used
 
     @property
-    def halted(self):
-        return self.status is Status.HALTED
+    def next_input(self):
+        return self.inputs.pop() if self.inputs else None
 
     def reset(self):
         """Reset computer to its original state before the program was run"""
