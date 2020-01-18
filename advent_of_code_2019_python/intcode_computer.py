@@ -1,4 +1,5 @@
 from typing import List, Optional
+from enum import Enum, auto
 
 import attr
 
@@ -20,6 +21,12 @@ OPCODE_EQUALS = 8
 OPCODE_HALT = 99
 
 
+class Status(Enum):
+    RUNNING = auto()
+    PAUSED = auto()
+    HALTED = auto()
+
+
 @attr.s
 class IntcodeComputer:
     intcode: List[int] = attr.ib()
@@ -27,7 +34,7 @@ class IntcodeComputer:
     instruction: int = attr.ib(init=False)
     instr_pointer: int = attr.ib(init=False, default=0)
     output: int = attr.ib(init=False, default=None)
-    halted: bool = attr.ib(init=False, default=False)
+    status: Status = attr.ib(init=False, default=Status.RUNNING)
 
     @orig_intcode.default
     def _init_orig_intcode(self):
@@ -45,13 +52,14 @@ class IntcodeComputer:
         Arguments:
             input_value: An integer given as input to the program.
         """
-        while not self.halted:
+        self.status = Status.RUNNING
+        while self.status is Status.RUNNING:
             # The last two digits of the instruction
             self.instruction = self.intcode[self.instr_pointer]
             opcode = self.instruction % 100
             self.instruction //= 100
             if opcode == OPCODE_HALT:
-                self.halted = True
+                self.status = Status.HALTED
             elif opcode == OPCODE_ADD:
                 self._output_to_index(self._next_value + self._next_value)
                 self.instr_pointer += 1
@@ -60,14 +68,15 @@ class IntcodeComputer:
                 self.instr_pointer += 1
             elif opcode == OPCODE_INPUT:
                 if input_value is None:
-                    break
-                self._output_to_index(input_value)
-                input_value = None
-                self.instr_pointer += 1
+                    self.status = Status.PAUSED
+                else:
+                    self._output_to_index(input_value)
+                    input_value = None
+                    self.instr_pointer += 1
             elif opcode == OPCODE_OUTPUT:
                 self.output = self._next_value
                 self.instr_pointer += 1
-                break
+                self.status = Status.PAUSED
             elif opcode == OPCODE_JUMPIFTRUE:
                 value = self._next_value
                 new_pointer = self._next_value
@@ -88,6 +97,10 @@ class IntcodeComputer:
             elif opcode == OPCODE_EQUALS:
                 self._output_to_index(1 if self._next_value == self._next_value else 0)
                 self.instr_pointer += 1
+
+    @property
+    def halted(self):
+        return self.status is Status.HALTED
 
     def _output_to_index(self, value: int):
         """Output value to the position defined by the next intcode step."""
