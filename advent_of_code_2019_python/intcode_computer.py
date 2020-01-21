@@ -1,14 +1,7 @@
 from abc import ABC, abstractmethod
-from enum import Enum, auto
 from typing import List, Optional
 
 import attr
-
-
-class Status(Enum):
-    RUNNING = auto()
-    PAUSED = auto()
-    HALTED = auto()
 
 
 @attr.s(auto_attribs=True)
@@ -17,14 +10,13 @@ class IntcodeOperation(ABC):
     instr_pointer: int
     param_modes: int = attr.ib(init=False)
     halted: bool = attr.ib(init=False, default=False)
-    paused: bool = attr.ib(init=False, default=False)
 
     @param_modes.default
     def _parse_instruction(self):
         return self.intcode[self.instr_pointer] // 100
 
     @abstractmethod
-    def execute(self, input_func) -> Optional[int]:
+    def execute(self, inputs: List[int]) -> Optional[int]:
         pass
 
     def _output_to_index(self, value: int):
@@ -43,78 +35,68 @@ class IntcodeOperation(ABC):
 
 
 class AddOperation(IntcodeOperation):
-    def execute(self, input_func) -> None:
+    """Addition of two values."""
+    def execute(self, inputs):
         self._output_to_index(self._next_value + self._next_value)
         self.instr_pointer += 1
 
 
 class MultiplyOperation(IntcodeOperation):
-    def execute(self, input_func) -> None:
+    """Multiply two values."""
+    def execute(self, inputs):
         self._output_to_index(self._next_value * self._next_value)
         self.instr_pointer += 1
 
 
 class InputOperation(IntcodeOperation):
-    def execute(self, input_func) -> None:
-        # if input_func is None: status = PAUSED
-        # else below
-        input_value = input_func()
-        if input_value is not None:
-            self._output_to_index(input_value)
-            self.instr_pointer += 1
-            self.paused = False
-        else:
-            self.paused = True
+    """Consume the next input."""
+    def execute(self, inputs):
+        self._output_to_index(inputs.pop())
+        self.instr_pointer += 1
 
 
-@attr.s
 class OutputOperation(IntcodeOperation):
-    paused: bool = attr.ib(init=False, default=True)
-
-    def execute(self, input_func) -> int:
+    """Get and return an output value."""
+    def execute(self, inputs):
         output = self._next_value
         self.instr_pointer += 1
         return output
 
 
 class JumpIfTrueOperation(IntcodeOperation):
-    def execute(self, input_func) -> None:
+    """Jump to an index if given value is non-zero."""
+    def execute(self, inputs):
         value = self._next_value
         new_pointer = self._next_value
-        if value:
-            self.instr_pointer = new_pointer
-        else:
-            self.instr_pointer += 1
+        self.instr_pointer = new_pointer if value else self.instr_pointer + 1
 
 
 class JumpIfFalseOperation(IntcodeOperation):
-    def execute(self, input_func) -> None:
+    """Jump to an index if given value is zero."""
+    def execute(self, inputs):
         value = self._next_value
         new_pointer = self._next_value
-        if not value:
-            self.instr_pointer = new_pointer
-        else:
-            self.instr_pointer += 1
+        self.instr_pointer = new_pointer if not value else self.instr_pointer + 1
 
 
 class LessThanOperation(IntcodeOperation):
-    def execute(self, input_func) -> None:
+    """Write 1 to index if the first value < second value."""
+    def execute(self, inputs):
         self._output_to_index(1 if self._next_value < self._next_value else 0)
         self.instr_pointer += 1
 
 
 class EqualsOperation(IntcodeOperation):
-    def execute(self, input_func) -> None:
+    """Write 1 to index if two values are equal."""
+    def execute(self, inputs):
         self._output_to_index(1 if self._next_value == self._next_value else 0)
         self.instr_pointer += 1
 
 
-@attr.s
 class HaltOperation(IntcodeOperation):
-    halted: bool = attr.ib(init=False, default=True)
-
-    def execute(self, input_func) -> None:
-        pass
+    """Halt intcode processing."""
+    def execute(self, inputs):
+        self.halted = True
 
 
 OPERATIONS = {1: AddOperation,
@@ -144,21 +126,22 @@ class IntcodeComputer:
 
     def compute(self):
         """Computes an intcode program result.
+
+        First, the opcode is parsed and correct operation is selected based on that.
+        A pointer to available inputs is provided to the operation, which it may optionally consume.
+        The operation return an output value or None. If an output is returned, processing is paused.
+        Instruction pointer and halt status are updated.
         """
-        while not self.halted:
+        output = None
+        while not self.halted and output is None:
             opcode = self.intcode[self.instr_pointer] % 100
             operation = OPERATIONS[opcode](self.intcode, self.instr_pointer)
-            output = operation.execute(self.next_input)
-            if output is not None:
-                self.output = output
+            output = operation.execute(self.inputs)
             self.instr_pointer = operation.instr_pointer
             self.halted = operation.halted
-            if operation.paused:
-                break
+            if output is not None:
+                self.output = output
 
     def set_inputs(self, *inputs):
         self.inputs = [i for i in inputs]
         self.inputs.reverse()
-
-    def next_input(self):
-        return self.inputs.pop() if self.inputs else None
