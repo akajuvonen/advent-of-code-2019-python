@@ -60,3 +60,14 @@ def test_large_number():
     intcode_computer = IntcodeComputer(intcode)
     intcode_computer.compute()
     assert intcode_computer.output == 1219070632396864
+
+
+def test_relative_base():
+    intcode = [109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99]
+    outputs = []
+    intcode_computer = IntcodeComputer(intcode)
+    intcode_computer.compute()
+    while not intcode_computer.halted:
+        outputs.append(intcode_computer.output)
+        intcode_computer.compute()
+    assert outputs == intcode
