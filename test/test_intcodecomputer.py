@@ -11,7 +11,7 @@ from advent_of_code_2019_python import IntcodeComputer
 def test_compute(intcode, expected):
     intcode_computer = IntcodeComputer(intcode)
     intcode_computer.compute()
-    assert intcode_computer.intcode == expected
+    assert intcode_computer.intcode_aslist == expected
 
 
 def test_input():
@@ -21,7 +21,7 @@ def test_input():
     intcode_computer = IntcodeComputer(intcode)
     intcode_computer.set_inputs(input_value)
     intcode_computer.compute()
-    assert intcode_computer.intcode == expected
+    assert intcode_computer.intcode_aslist == expected
 
 
 def test_output():
@@ -38,7 +38,7 @@ def test_immediatemode():
     expected = [1002, 4, 3, 4, 99]
     intcode_computer = IntcodeComputer(intcode)
     intcode_computer.compute()
-    assert intcode_computer.intcode == expected
+    assert intcode_computer.intcode_aslist == expected
 
 
 @pytest.mark.parametrize('intcode', [([1005, 2, 5, -15, -16, 99]), ([1106, 0, 5, -12, -13, 99])])
@@ -52,4 +52,22 @@ def test_jump_instructions(intcode):
 def test_comparisons(intcode, expected):
     intcode_computer = IntcodeComputer(intcode)
     intcode_computer.compute()
-    assert intcode_computer.intcode == expected
+    assert intcode_computer.intcode_aslist == expected
+
+
+def test_large_number():
+    intcode = [1102, 34915192, 34915192, 7, 4, 7, 99, 0]
+    intcode_computer = IntcodeComputer(intcode)
+    intcode_computer.compute()
+    assert intcode_computer.output == 1219070632396864
+
+
+def test_relative_base():
+    intcode = [109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99]
+    outputs = []
+    intcode_computer = IntcodeComputer(intcode)
+    intcode_computer.compute()
+    while not intcode_computer.halted:
+        outputs.append(intcode_computer.output)
+        intcode_computer.compute()
+    assert outputs == intcode
