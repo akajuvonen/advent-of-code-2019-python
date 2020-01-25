@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, DefaultDict
 from collections import defaultdict
+from typing import DefaultDict, List, Optional
 
 import attr
 
@@ -31,14 +31,25 @@ class IntcodeOperation(ABC):
 
     def output_to_index(self, value: int):
         """Output value to the position defined by the next intcode step.
-        The output address might also be relative."""
+        The output address might also be relative.
+
+        Arguments:
+            value: The value that will be output to specific address.
+        """
         self.intcode[self._get_address()] = value
 
     def get_next_value(self) -> int:
-        """Simultaneously parse the next parameter mode (0, 1 or 2), increment pointer and return value"""
+        """Simultaneously parse the next parameter mode (0, 1 or 2), increment pointer and return value.
+
+        Returns:
+            The value in intcode position, or the value in address given by this position.
+        """
         return self.intcode[self._get_address()]
 
     def _get_address(self):
+        """Get address of the next value. It may be the direct value, or the value in address indicated
+        by the value. The address may also be adjusted by relative base value.
+        """
         param_mode = self._get_next_parameter_mode()
         # Immediate mode, parameter mode is the value itself
         if param_mode == 1:
@@ -52,6 +63,7 @@ class IntcodeOperation(ABC):
         return address
 
     def _get_next_parameter_mode(self):
+        """Parse the next parameter mode."""
         param_mode = self.param_modes % 10
         self.param_modes //= 10
         self.instr_pointer += 1
@@ -73,7 +85,7 @@ class MultiplyOperation(IntcodeOperation):
 
 
 class InputOperation(IntcodeOperation):
-    """Consume the next input."""
+    """Consume the next input. Inputs can be anything that support pop()."""
     def execute(self):
         self.output_to_index(self.inputs.pop())
         self.instr_pointer += 1
@@ -167,9 +179,12 @@ class IntcodeComputer:
         """
         output = None
         while not self.halted and output is None:
+            # Parse opcode
             opcode = self.intcode[self.instr_pointer] % 100
+            # Execute operation and get output
             operation = OPERATIONS[opcode](self.intcode, self.instr_pointer, self.inputs, self.relative_base)
             output = operation.execute()
+            # Update variables after operation
             self.instr_pointer = operation.instr_pointer
             self.relative_base = operation.relative_base
             self.halted = operation.halted
@@ -177,7 +192,9 @@ class IntcodeComputer:
                 self.output = output
 
     def set_inputs(self, *inputs):
+        """Set one or more inputs."""
         self.inputs = [i for i in inputs]
+        # Internally stored as reversed list, popping from beginning is slow
         self.inputs.reverse()
 
     @property
