@@ -29,30 +29,29 @@ class IntcodeOperation(ABC):
     def execute(self) -> Optional[int]:
         pass
 
-    def _output_to_index(self, value: int):
-        """Output value to the position defined by the next intcode step."""
-        param_mode = self._next_param_mode
-        address = self.intcode[self.instr_pointer]
-        if param_mode == 2:
-            address += self.relative_base
-        self.intcode[address] = value
+    def output_to_index(self, value: int):
+        """Output value to the position defined by the next intcode step.
+        The output address might also be relative."""
+        self.intcode[self._get_address()] = value
 
-    @property
-    def _next_value(self) -> int:
+    def get_next_value(self) -> int:
         """Simultaneously parse the next parameter mode (0, 1 or 2), increment pointer and return value"""
-        param_mode = self._next_param_mode
-        # If immediate mode, return the actual value
-        if param_mode == 1:
-            return self.intcode[self.instr_pointer]
-        # In position mode the value is retrieved from given address
-        address = self.intcode[self.instr_pointer]
-        # In relative mode the address is adjusted by relative base
-        if param_mode == 2:
-            address += self.relative_base
-        return self.intcode[address]
+        return self.intcode[self._get_address()]
 
-    @property
-    def _next_param_mode(self):
+    def _get_address(self):
+        param_mode = self._get_next_parameter_mode()
+        # Immediate mode, parameter mode is the value itself
+        if param_mode == 1:
+            address = self.instr_pointer
+        else:
+            # In position mode the value is retrieved from given address
+            address = self.intcode[self.instr_pointer]
+            # If relative mode, the address is adjusted with relative base
+            if param_mode == 2:
+                address += self.relative_base
+        return address
+
+    def _get_next_parameter_mode(self):
         param_mode = self.param_modes % 10
         self.param_modes //= 10
         self.instr_pointer += 1
@@ -62,28 +61,28 @@ class IntcodeOperation(ABC):
 class AddOperation(IntcodeOperation):
     """Addition of two values."""
     def execute(self):
-        self._output_to_index(self._next_value + self._next_value)
+        self.output_to_index(self.get_next_value() + self.get_next_value())
         self.instr_pointer += 1
 
 
 class MultiplyOperation(IntcodeOperation):
     """Multiply two values."""
     def execute(self):
-        self._output_to_index(self._next_value * self._next_value)
+        self.output_to_index(self.get_next_value() * self.get_next_value())
         self.instr_pointer += 1
 
 
 class InputOperation(IntcodeOperation):
     """Consume the next input."""
     def execute(self):
-        self._output_to_index(self.inputs.pop())
+        self.output_to_index(self.inputs.pop())
         self.instr_pointer += 1
 
 
 class OutputOperation(IntcodeOperation):
     """Get and return an output value."""
     def execute(self):
-        output = self._next_value
+        output = self.get_next_value()
         self.instr_pointer += 1
         return output
 
@@ -91,30 +90,30 @@ class OutputOperation(IntcodeOperation):
 class JumpIfTrueOperation(IntcodeOperation):
     """Jump to an index if given value is non-zero."""
     def execute(self):
-        value = self._next_value
-        new_pointer = self._next_value
+        value = self.get_next_value()
+        new_pointer = self.get_next_value()
         self.instr_pointer = new_pointer if value else self.instr_pointer + 1
 
 
 class JumpIfFalseOperation(IntcodeOperation):
     """Jump to an index if given value is zero."""
     def execute(self):
-        value = self._next_value
-        new_pointer = self._next_value
+        value = self.get_next_value()
+        new_pointer = self.get_next_value()
         self.instr_pointer = new_pointer if not value else self.instr_pointer + 1
 
 
 class LessThanOperation(IntcodeOperation):
     """Write 1 to index if the first value < second value."""
     def execute(self):
-        self._output_to_index(1 if self._next_value < self._next_value else 0)
+        self.output_to_index(1 if self.get_next_value() < self.get_next_value() else 0)
         self.instr_pointer += 1
 
 
 class EqualsOperation(IntcodeOperation):
     """Write 1 to index if two values are equal."""
     def execute(self):
-        self._output_to_index(1 if self._next_value == self._next_value else 0)
+        self.output_to_index(1 if self.get_next_value() == self.get_next_value() else 0)
         self.instr_pointer += 1
 
 
@@ -127,7 +126,7 @@ class HaltOperation(IntcodeOperation):
 class AdjustRelativeBaseOperation(IntcodeOperation):
     """Adjust the relative base value."""
     def execute(self):
-        self.relative_base += self._next_value
+        self.relative_base += self.get_next_value()
         self.instr_pointer += 1
 
 
