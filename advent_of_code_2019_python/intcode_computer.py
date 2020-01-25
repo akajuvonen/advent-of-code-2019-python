@@ -31,16 +31,16 @@ class IntcodeOperation(ABC):
 
     def _output_to_index(self, value: int):
         """Output value to the position defined by the next intcode step."""
-        self.instr_pointer += 1
-        output_index = self.intcode[self.instr_pointer]
-        self.intcode[output_index] = value
+        param_mode = self._next_param_mode
+        address = self.intcode[self.instr_pointer]
+        if param_mode == 2:
+            address += self.relative_base
+        self.intcode[address] = value
 
     @property
     def _next_value(self) -> int:
         """Simultaneously parse the next parameter mode (0, 1 or 2), increment pointer and return value"""
-        param_mode = self.param_modes % 10
-        self.param_modes //= 10
-        self.instr_pointer += 1
+        param_mode = self._next_param_mode
         # If immediate mode, return the actual value
         if param_mode == 1:
             return self.intcode[self.instr_pointer]
@@ -50,6 +50,13 @@ class IntcodeOperation(ABC):
         if param_mode == 2:
             address += self.relative_base
         return self.intcode[address]
+
+    @property
+    def _next_param_mode(self):
+        param_mode = self.param_modes % 10
+        self.param_modes //= 10
+        self.instr_pointer += 1
+        return param_mode
 
 
 class AddOperation(IntcodeOperation):
