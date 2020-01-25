@@ -1,12 +1,20 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, DefaultDict
+from collections import defaultdict
 
 import attr
 
 
+def _list_to_defaultdict(l: List[int]) -> DefaultDict[int, int]:
+    d: DefaultDict[int, int] = defaultdict(int)
+    for i, x in enumerate(l):
+        d[i] = x
+    return d
+
+
 @attr.s(auto_attribs=True)
 class IntcodeOperation(ABC):
-    intcode: List[int]
+    intcode: DefaultDict[int, int]
     instr_pointer: int
     param_modes: int = attr.ib(init=False)
     halted: bool = attr.ib(init=False, default=False)
@@ -110,9 +118,9 @@ OPERATIONS = {1: AddOperation,
               99: HaltOperation}
 
 
-@attr.s(auto_attribs=True)
+@attr.s
 class IntcodeComputer:
-    intcode: List[int]
+    intcode: DefaultDict[int, int] = attr.ib(converter=_list_to_defaultdict)
     inputs: List[int] = attr.ib(init=False, factory=list)
     instr_pointer: int = attr.ib(init=False, default=0)
     output: int = attr.ib(init=False, default=None)
@@ -145,3 +153,7 @@ class IntcodeComputer:
     def set_inputs(self, *inputs):
         self.inputs = [i for i in inputs]
         self.inputs.reverse()
+
+    @property
+    def intcode_aslist(self):
+        return [x for x in self.intcode.values()]
