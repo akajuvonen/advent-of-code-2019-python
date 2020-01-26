@@ -1,4 +1,4 @@
-from typing import Set, Tuple
+from typing import Optional, Set, Tuple
 
 import click
 
@@ -45,11 +45,25 @@ def _gcd(a: int, b: int) -> int:
     return abs(a)
 
 
+def find_best_location(asteroids: Set[Tuple[int, ...]], size: Tuple[int, ...]) \
+        -> Tuple[Optional[Tuple[int, ...]], int]:
+    max_visible_asteroids = 0
+    best_location = None
+    for asteroid in asteroids:
+        visible_asteroids = calculate_visible_asteroids(asteroids, asteroid, size)
+        if visible_asteroids > max_visible_asteroids:
+            max_visible_asteroids = visible_asteroids
+            best_location = asteroid
+    return best_location, max_visible_asteroids
+
+
 @click.command()
 @click.option('--input-file', required=True, type=str, default='inputs/input_day10.txt', show_default=True,
               help='Path to file containing asteroid locations.')
 def main(input_file):
     asteroids, size = parse_asteroids(input_file)
+    best_loc, visible_asteroids = find_best_location(asteroids, size)
+    print(f'Best location at {best_loc} with {visible_asteroids} visible asteroids')
 
 
 if __name__ == '__main__':
