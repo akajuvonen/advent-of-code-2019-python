@@ -13,8 +13,8 @@ def parse_asteroids(filename: str) -> Tuple[Set[Tuple[int, int]], Tuple[int, int
     return asteroids, (x, y)
 
 
-def calculate_visible_asteroids(all_asteroids: Set[Tuple[int, int]], location: Tuple[int, int],
-                                size: Tuple[int, int]) -> int:
+def calculate_visible_asteroids(all_asteroids: Set[Tuple[int, ...]], location: Tuple[int, ...],
+                                size: Tuple[int, ...]) -> int:
     # Copy to avoid changing the original set
     visible_asteroids = all_asteroids.copy()
     visible_asteroids.remove(location)
