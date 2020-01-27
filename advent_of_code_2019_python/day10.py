@@ -19,23 +19,21 @@ def parse_asteroids_with_max_size(filename: str) -> Tuple[Set[Coord], Coord]:
 
 
 def calculate_visible_asteroids(all_asteroids: Set[Coord], location: Coord, size: Coord) -> int:
-    visible_asteroids = all_asteroids.copy()
-    visible_asteroids.remove(location)
-    for asteroid in visible_asteroids.copy():
+    unique_line_of_sights = set()
+    for asteroid in all_asteroids:
+        if asteroid == location:
+            continue
         dx, dy = asteroid.x - location.x, asteroid.y - location.y
         divisor = gcd(dx, dy)
         dx //= divisor
         dy //= divisor
         current_loc = Coord(location.x + dx, location.y + dy)
-        first_asteroid_from_location = True
         while 0 <= current_loc.x < size.x and 0 <= current_loc.y < size.y:
-            if current_loc in visible_asteroids:
-                if first_asteroid_from_location:
-                    first_asteroid_from_location = False
-                else:
-                    visible_asteroids.remove(current_loc)
+            if current_loc in all_asteroids:
+                unique_line_of_sights.add(Coord(dx, dy))
+                break
             current_loc = Coord(current_loc.x + dx, current_loc.y + dy)
-    return len(visible_asteroids)
+    return len(unique_line_of_sights)
 
 
 def find_best_location(asteroids: Set[Coord], size: Coord) -> Tuple[Optional[Coord], int]:
