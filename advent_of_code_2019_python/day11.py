@@ -1,18 +1,18 @@
 from collections import defaultdict, namedtuple
+from typing import Tuple
 
 import click
 
 from advent_of_code_2019_python import IntcodeComputer
 
-
 Position = namedtuple('Position', ['x', 'y'])
 
 
-def turn_left(x, y):
+def turn_left(x: int, y: int) -> Tuple[int, int]:
     return -y, x
 
 
-def turn_right(x, y):
+def turn_right(x: int, y: int) -> Tuple[int, int]:
     return y, -x
 
 
