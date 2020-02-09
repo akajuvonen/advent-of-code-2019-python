@@ -4,10 +4,10 @@ from advent_of_code_2019_python import IntcodeComputer
 
 
 def print_outputs(intcode_computer: IntcodeComputer):
-    intcode_computer.compute()
     while not intcode_computer.halted:
-        print(intcode_computer.output)
-        intcode_computer.compute()
+        output = intcode_computer.compute()
+        if output is not None:
+            print(output)
 
 
 @click.command()

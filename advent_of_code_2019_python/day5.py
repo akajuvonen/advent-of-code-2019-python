@@ -10,16 +10,15 @@ def main(input_file):
     print('Air conditioner unit test output (ID: 1)')
     intcode_computer = IntcodeComputer.from_file(input_file)
     intcode_computer.set_inputs(1)
-    intcode_computer.compute()
+    output = intcode_computer.compute()
     while not intcode_computer.halted:
-        print(intcode_computer.output)
-        intcode_computer.compute()
+        print(output)
+        output = intcode_computer.compute()
 
     print('Thermal radiator controller test output (ID: 5)')
     intcode_computer = IntcodeComputer.from_file(input_file)
     intcode_computer.set_inputs(5)
-    intcode_computer.compute()
-    print(intcode_computer.output)
+    print(intcode_computer.compute())
 
 
 if __name__ == '__main__':

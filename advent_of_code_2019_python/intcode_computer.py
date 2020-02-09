@@ -160,7 +160,6 @@ class IntcodeComputer:
     inputs: List[int] = attr.ib(init=False, factory=list)
     instr_pointer: int = attr.ib(init=False, default=0)
     relative_base: int = attr.ib(init=False, default=0)
-    output: int = attr.ib(init=False, default=None)
     halted: bool = attr.ib(init=False, default=False)
 
     @classmethod
@@ -178,7 +177,7 @@ class IntcodeComputer:
         Instruction pointer and halt status are updated.
         """
         output = None
-        while not self.halted and output is None:
+        while not self.halted:
             # Parse opcode
             opcode = self.intcode[self.instr_pointer] % 100
             # Execute operation and get output
@@ -189,7 +188,7 @@ class IntcodeComputer:
             self.relative_base = operation.relative_base
             self.halted = operation.halted
             if output is not None:
-                self.output = output
+                return output
 
     def set_inputs(self, *inputs):
         """Set one or more inputs."""
