@@ -53,12 +53,22 @@ def apply_gravity(moons: List[Moon], steps: int):
             moon.apply_velocity()
 
 
+def calculate_total_energy(moons: List[Moon]) -> int:
+    total_energy = 0
+    for moon in moons:
+        potential_energy = abs(moon.position.x) + abs(moon.position.y) + abs(moon.position.z)
+        kinetic_energy = abs(moon.velocity.x) + abs(moon.velocity.y) + abs(moon.velocity.z)
+        total_energy += potential_energy * kinetic_energy
+    return total_energy
+
+
 @click.command()
 @click.option('--input-file', required=True, type=str, default='inputs/input_day12.txt', show_default=True,
               help='Path to file containing moon positions.')
 def main(input_file):
     moons = parse_input(input_file)
-    moons = apply_gravity(moons, 1000)
+    apply_gravity(moons, 1000)
+    print(f'Total energy: {calculate_total_energy(moons)}')
 
 
 if __name__ == '__main__':
