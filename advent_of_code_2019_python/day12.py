@@ -1,4 +1,4 @@
-from collections import namedtuple
+from itertools import permutations
 from typing import List
 
 import attr
@@ -15,19 +15,19 @@ class Coord:
 @attr.s(auto_attribs=True)
 class Moon:
     position: Coord
-    velocity: Coord = Coord(x=0, y=0, z=0)
+    velocity: Coord
 
-    def update_velocity(self, other_position):
-        self.velocity.x = self._get_change(self.position.x, other_position.x)
-        self.velocity.y = self._get_change(self.position.y, other_position.y)
-        self.velocity.z = self._get_change(self.position.z, other_position.z)
+    def update_velocity(self, other: 'Moon'):
+        self.velocity.x += self._get_change(self.position.x, other.position.x)
+        self.velocity.y += self._get_change(self.position.y, other.position.y)
+        self.velocity.z += self._get_change(self.position.z, other.position.z)
 
     def apply_velocity(self):
-        self.position.x = self.velocity.x
-        self.position.y = self.velocity.y
-        self.position.z = self.velocity.z
+        self.position.x += self.velocity.x
+        self.position.y += self.velocity.y
+        self.position.z += self.velocity.z
 
-    def _get_change(self, this, other):
+    def _get_change(self, this: int, other: int) -> int:
         if this == other:
             return 0
         return 1 if this < other else -1
@@ -41,18 +41,16 @@ def parse_input(input_file: str) -> List[Moon]:
             line = line.replace(' ', '')
             coords = line.split(',')
             x, y, z = tuple(int(c.split('=')[1]) for c in coords)
-            moons.append(Moon(position=Coord(x, y, z)))
+            moons.append(Moon(position=Coord(x, y, z), velocity=Coord(0, 0, 0)))
     return moons
 
 
-def apply_gravity(moons, steps):
+def apply_gravity(moons: List[Moon], steps: int):
     for _ in range(steps):
-        for moon in moons:
-            for other in moons:
-                moon.update_velocity(other.position)
+        for this, other in permutations(moons, 2):
+            this.update_velocity(other)
         for moon in moons:
             moon.apply_velocity()
-
 
 
 @click.command()
@@ -60,9 +58,7 @@ def apply_gravity(moons, steps):
               help='Path to file containing moon positions.')
 def main(input_file):
     moons = parse_input(input_file)
-    print(moons)
-    moons = apply_gravity(moons, 1)
-    print(moons)
+    moons = apply_gravity(moons, 1000)
 
 
 if __name__ == '__main__':
