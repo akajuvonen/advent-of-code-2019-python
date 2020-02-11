@@ -3,7 +3,7 @@ from typing import List
 
 import attr
 import click
-import numpy as np
+import numpy as np  # type: ignore
 
 
 @attr.s(auto_attribs=True)
@@ -28,6 +28,7 @@ class Moon:
         self.position.y += self.velocity.y
         self.position.z += self.velocity.z
 
+
 def _get_change(this: int, other: int) -> int:
     if this == other:
         return 0
@@ -47,6 +48,7 @@ def parse_input(input_file: str) -> List[Moon]:
 
 
 def apply_gravity(moons: List[Moon], steps: int):
+    """Repeatedly calculate velocities based on moon positions and update positions based on those velocities."""
     for _ in range(steps):
         for this, other in permutations(moons, 2):
             this.update_velocity(other)
@@ -55,6 +57,7 @@ def apply_gravity(moons: List[Moon], steps: int):
 
 
 def calculate_total_energy(moons: List[Moon]) -> int:
+    """Calculates total energy as a sum of products of potential and kinetic energy."""
     total_energy = 0
     for moon in moons:
         potential_energy = abs(moon.position.x) + abs(moon.position.y) + abs(moon.position.z)
@@ -64,6 +67,11 @@ def calculate_total_energy(moons: List[Moon]) -> int:
 
 
 def calculate_loop(moons: List[Moon]) -> int:
+    """Calculates how many steps are needed for the whole system to return its original position.
+
+    Note that all axes are completely independent, e.g., x-axis does not depend on y or z.
+    Their loops can be calculated independently.
+    """
     xs = np.zeros(len(moons))
     ys = np.zeros(len(moons))
     zs = np.zeros(len(moons))
@@ -77,7 +85,7 @@ def calculate_loop(moons: List[Moon]) -> int:
     return np.lcm.reduce([x_steps, y_steps, z_steps])
 
 
-def _calculate_loop_for_one_axis(positions: np.ndarray):
+def _calculate_loop_for_one_axis(positions: np.ndarray) -> int:
     velocities = np.zeros(len(positions))
     orig_positions = np.copy(positions)
     steps = 0
@@ -90,7 +98,6 @@ def _calculate_loop_for_one_axis(positions: np.ndarray):
         if np.array_equal(positions, orig_positions) and all(velocities == 0):
             break
     return steps
-
 
 
 @click.command()
