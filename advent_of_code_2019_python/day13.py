@@ -1,9 +1,10 @@
-import click
-
-from advent_of_code_2019_python import IntcodeComputer
 import time
 
-import numpy as np
+import click
+import numpy as np  # type: ignore
+
+from advent_of_code_2019_python import IntcodeComputer
+
 
 def _array_formatter(x):
     icons = {1: '#',
@@ -71,6 +72,7 @@ def main(input_file):
             tiles[(x, y)] = tile
     print(f' Number of block tiles on the screen: {list(tiles.values()).count(2)}')
 
+    # Get screen size
     max_x, max_y = 0, 0
     for x, y in tiles:
         if x > max_x:
@@ -80,6 +82,7 @@ def main(input_file):
 
     score = play_game(IntcodeComputer.from_file(input_file), np.zeros((max_y + 1, max_x + 1), dtype=np.int8))
     print(f'Score: {score}')
+
 
 if __name__ == '__main__':
     main()
