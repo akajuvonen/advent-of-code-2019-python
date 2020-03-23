@@ -4,6 +4,11 @@ import numpy as np
 from advent_of_code_2019_python.intcode_computer import IntcodeComputer
 
 
+def print_array(array: np.ndarray):
+    np.set_printoptions(formatter={'all': lambda x: chr(x)}, threshold=np.inf, linewidth=120)
+    print(array)
+
+
 @click.command()
 @click.option('--input-file', required=True, type=str, default='inputs/input_day17.txt', show_default=True,
               help='Path to file containing Intcode program (comma-separated list)')
@@ -24,7 +29,7 @@ def main(input_file):
     while not scaffolds[-1]:
         scaffolds.pop()
     scaffolds_array = np.array(scaffolds)
-    print(scaffolds_array)
+    print_array(scaffolds_array)
 
 
 if __name__ == '__main__':
