@@ -1,4 +1,6 @@
 from typing import Dict, Tuple
+import numpy as np
+from collections import defaultdict
 
 import click
 
@@ -25,12 +27,26 @@ def parse_file(input_file: str) -> Dict[str, Tuple[Dict[str, int], int]]:
     return reactions
 
 
+def calculate_ingredients(reactions: Dict[str, Tuple[Dict[str, int], int]]):
+    basic_ingredients = defaultdict(int)
+    _calculate_basic_ingredients(reactions, 'FUEL', 1, basic_ingredients)
+    return basic_ingredients
+
+
+def _calculate_basic_ingredients(reactions, ingredient, quantity, basic_ingredients):
+    sub_ingredients, si_quantity = reactions[ingredient]
+    if 'ORE' in sub_ingredients:
+        basic_ingredients[ingredient] += quantity
+        return
+    for sub_ingredient in sub_ingredients:
+        _calculate_basic_ingredients(reactions, sub_ingredient, quantity*si_quantity, basic_ingredients)
+
+
 @click.command()
 @click.option('--input-file', required=True, type=str, default='inputs/input_day14.txt', show_default=True,
               help='Path to file containing Intcode program (comma-separated list)')
 def main(input_file):
     reactions = parse_file(input_file)
-    print(reactions)
 
 
 if __name__ == '__main__':
