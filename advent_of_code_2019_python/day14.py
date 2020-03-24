@@ -9,7 +9,7 @@ def _parse_name_and_quantity(string: str) -> Tuple[str, int]:
     return name, quantity
 
 
-def parse_file(input_file: str) -> Dict[str, Dict[str, int]]:
+def parse_file(input_file: str) -> Dict[str, Tuple[Dict[str, int], int]]:
     reactions = {}
     with open(input_file) as f:
         for line in f:
