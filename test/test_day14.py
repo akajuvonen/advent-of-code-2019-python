@@ -1,4 +1,4 @@
-from advent_of_code_2019_python.day14 import calculate_ingredients
+from advent_of_code_2019_python.day14 import calculate_ore
 
 
 def test_calculate_ingredients():
@@ -7,6 +7,6 @@ def test_calculate_ingredients():
                  'D': ({'A': 7, 'C': 1}, 1),
                  'C': ({'A': 7, 'B': 1}, 1),
                  'B': ({'ORE': 1}, 1),
-                 'A': ({'ORE': 10}, 1)}
-    ingredients = calculate_ingredients(reactions)
-    print(ingredients)
+                 'A': ({'ORE': 10}, 10)}
+    needed_ore = calculate_ore(reactions)
+    assert needed_ore == 31

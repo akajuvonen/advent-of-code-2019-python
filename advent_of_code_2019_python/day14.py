@@ -27,19 +27,26 @@ def parse_file(input_file: str) -> Dict[str, Tuple[Dict[str, int], int]]:
     return reactions
 
 
-def calculate_ingredients(reactions: Dict[str, Tuple[Dict[str, int], int]]):
+def calculate_ore(reactions: Dict[str, Tuple[Dict[str, int], int]]):
     basic_ingredients = defaultdict(int)
     _calculate_basic_ingredients(reactions, 'FUEL', 1, basic_ingredients)
-    return basic_ingredients
+    needed_ore = 0
+    for basic_ingredient in basic_ingredients:
+        needed_basic_ingredient = basic_ingredients[basic_ingredient]
+        basic_ingredient_produced_per_reaction = reactions[basic_ingredient][1]
+        needed_reactions = int(np.ceil(float(needed_basic_ingredient) / float(basic_ingredient_produced_per_reaction)))
+        needed_ore += needed_reactions * basic_ingredient_produced_per_reaction
+    return needed_ore
 
 
 def _calculate_basic_ingredients(reactions, ingredient, quantity, basic_ingredients):
-    sub_ingredients, si_quantity = reactions[ingredient]
+    sub_ingredients, ingredient_quantity = reactions[ingredient]
     if 'ORE' in sub_ingredients:
         basic_ingredients[ingredient] += quantity
         return
     for sub_ingredient in sub_ingredients:
-        _calculate_basic_ingredients(reactions, sub_ingredient, quantity*si_quantity, basic_ingredients)
+        needed_quantity = int(np.ceil(float(quantity) / float(ingredient_quantity)) * sub_ingredients[sub_ingredient])
+        _calculate_basic_ingredients(reactions, sub_ingredient, needed_quantity, basic_ingredients)
 
 
 @click.command()
@@ -47,6 +54,7 @@ def _calculate_basic_ingredients(reactions, ingredient, quantity, basic_ingredie
               help='Path to file containing Intcode program (comma-separated list)')
 def main(input_file):
     reactions = parse_file(input_file)
+    print(f'Part 1 (needed ore for one FUEL: {calculate_ore(reactions)}')
 
 
 if __name__ == '__main__':
