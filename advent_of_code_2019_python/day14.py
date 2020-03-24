@@ -34,8 +34,9 @@ def calculate_ore(reactions: Dict[str, Tuple[Dict[str, int], int]]):
     for basic_ingredient in basic_ingredients:
         needed_basic_ingredient = basic_ingredients[basic_ingredient]
         basic_ingredient_produced_per_reaction = reactions[basic_ingredient][1]
+        consumed_ore_per_reaction = reactions[basic_ingredient][0]['ORE']
         needed_reactions = int(np.ceil(float(needed_basic_ingredient) / float(basic_ingredient_produced_per_reaction)))
-        needed_ore += needed_reactions * basic_ingredient_produced_per_reaction
+        needed_ore += needed_reactions * consumed_ore_per_reaction
     return needed_ore
 
 
