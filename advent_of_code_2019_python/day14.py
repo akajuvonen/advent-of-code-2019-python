@@ -1,6 +1,12 @@
-from typing import Dict
+from typing import Dict, Tuple
 
 import click
+
+
+def _parse_name_and_quantity(string: str) -> Tuple[str, int]:
+    name = string.lstrip('0123456789')
+    quantity = int(string[:-len(name)])
+    return name, quantity
 
 
 def parse_file(input_file: str) -> Dict[str, Dict[str, int]]:
@@ -9,13 +15,13 @@ def parse_file(input_file: str) -> Dict[str, Dict[str, int]]:
         for line in f:
             line = line.rstrip('\n').replace(' ', '')
             line, result = line.split('=>')
+            resultname, resultquantity = _parse_name_and_quantity(result)
             ingredients = line.split(',')
             recipe = {}
             for ingredient in ingredients:
-                name = ingredient.lstrip('0123456789')
-                quantity = int(ingredient[:-len(name)])
+                name, quantity = _parse_name_and_quantity(ingredient)
                 recipe[name] = quantity
-            reactions[result] = recipe
+            reactions[resultname] = (recipe, resultquantity)
     return reactions
 
 
