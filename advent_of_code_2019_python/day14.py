@@ -45,6 +45,7 @@ def _calculate_basic_ingredients(reactions, ingredient, quantity, basic_ingredie
     if 'ORE' in sub_ingredients:
         basic_ingredients[ingredient] += quantity
         return
+    # NOTE: this does not work in all cases, need to keep a track of extra production
     for sub_ingredient in sub_ingredients:
         needed_quantity = int(np.ceil(float(quantity) / float(ingredient_quantity)) * sub_ingredients[sub_ingredient])
         _calculate_basic_ingredients(reactions, sub_ingredient, needed_quantity, basic_ingredients)
