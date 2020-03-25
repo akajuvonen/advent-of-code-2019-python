@@ -1,8 +1,8 @@
-from typing import Dict, Tuple
-import numpy as np
 from collections import defaultdict
+from typing import Dict, Tuple, DefaultDict
 
 import click
+import numpy as np  # type: ignore
 
 
 def _parse_name_and_quantity(string: str) -> Tuple[str, int]:
@@ -27,9 +27,14 @@ def parse_file(input_file: str) -> Dict[str, Tuple[Dict[str, int], int]]:
     return reactions
 
 
-def calculate_ore(reactions: Dict[str, Tuple[Dict[str, int], int]]):
-    basic_ingredients = defaultdict(int)
-    leftovers = defaultdict(int)
+def calculate_ore(reactions: Dict[str, Tuple[Dict[str, int], int]]) -> int:
+    """Calculates needed total ore for one unit of FUEL.
+
+    This is done by first calculating needed quantities of basic ingredients
+    (ingredients that only need ore) and then calculating total ore after that.
+    """
+    basic_ingredients: DefaultDict[str, int] = defaultdict(int)
+    leftovers: DefaultDict[str, int] = defaultdict(int)
     _calculate_basic_ingredients(reactions, 'FUEL', 1, basic_ingredients, leftovers)
     needed_ore = 0
     for basic_ingredient in basic_ingredients:
@@ -41,7 +46,9 @@ def calculate_ore(reactions: Dict[str, Tuple[Dict[str, int], int]]):
     return needed_ore
 
 
-def _calculate_basic_ingredients(reactions, ingredient, needed_quantity, basic_ingredients, leftovers):
+def _calculate_basic_ingredients(reactions: Dict[str, Tuple[Dict[str, int], int]], ingredient: str,
+                                 needed_quantity: int, basic_ingredients: Dict[str, int], leftovers: Dict[str, int]):
+    """Calculates needed basic ingredients while keeping track and using any leftovers from previous reactions."""
     sub_ingredients, produced_quantity = reactions[ingredient]
     if 'ORE' in sub_ingredients:
         basic_ingredients[ingredient] += needed_quantity
@@ -57,7 +64,8 @@ def _calculate_basic_ingredients(reactions, ingredient, needed_quantity, basic_i
     for sub_ingredient in sub_ingredients:
         needed_sub_ingredient_per_reaction = sub_ingredients[sub_ingredient]
         needed_sub_ingredient_quantity = needed_reactions * needed_sub_ingredient_per_reaction
-        _calculate_basic_ingredients(reactions, sub_ingredient, needed_sub_ingredient_quantity, basic_ingredients, leftovers)
+        _calculate_basic_ingredients(reactions, sub_ingredient, needed_sub_ingredient_quantity, basic_ingredients,
+                                     leftovers)
 
 
 @click.command()
