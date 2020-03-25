@@ -40,15 +40,15 @@ def calculate_ore(reactions: Dict[str, Tuple[Dict[str, int], int]]):
     return needed_ore
 
 
-def _calculate_basic_ingredients(reactions, ingredient, quantity, basic_ingredients):
-    sub_ingredients, ingredient_quantity = reactions[ingredient]
+def _calculate_basic_ingredients(reactions, ingredient, needed_quantity, basic_ingredients):
+    sub_ingredients, produced_quantity = reactions[ingredient]
     if 'ORE' in sub_ingredients:
-        basic_ingredients[ingredient] += quantity
+        basic_ingredients[ingredient] += needed_quantity
         return
-    # NOTE: this does not work in all cases, need to keep a track of extra production
     for sub_ingredient in sub_ingredients:
-        needed_quantity = int(np.ceil(float(quantity) / float(ingredient_quantity)) * sub_ingredients[sub_ingredient])
-        _calculate_basic_ingredients(reactions, sub_ingredient, needed_quantity, basic_ingredients)
+        needed_sub_ingredient_per_reaction = sub_ingredients[sub_ingredient]
+        needed_sub_ingredient_quantity = int(np.ceil(float(needed_quantity) / float(produced_quantity)) * needed_sub_ingredient_per_reaction)
+        _calculate_basic_ingredients(reactions, sub_ingredient, needed_sub_ingredient_quantity, basic_ingredients)
 
 
 @click.command()
