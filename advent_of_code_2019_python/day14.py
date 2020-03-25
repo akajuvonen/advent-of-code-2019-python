@@ -27,7 +27,7 @@ def parse_file(input_file: str) -> Dict[str, Tuple[Dict[str, int], int]]:
     return reactions
 
 
-def calculate_ore(reactions: Dict[str, Tuple[Dict[str, int], int]]) -> int:
+def calculate_ore(reactions: Dict[str, Tuple[Dict[str, int], int]], fuel_amount: int = 1) -> int:
     """Calculates needed total ore for one unit of FUEL.
 
     This is done by first calculating needed quantities of basic ingredients
@@ -35,7 +35,7 @@ def calculate_ore(reactions: Dict[str, Tuple[Dict[str, int], int]]) -> int:
     """
     basic_ingredients: DefaultDict[str, int] = defaultdict(int)
     leftovers: DefaultDict[str, int] = defaultdict(int)
-    _calculate_basic_ingredients(reactions, 'FUEL', 1, basic_ingredients, leftovers)
+    _calculate_basic_ingredients(reactions, 'FUEL', fuel_amount, basic_ingredients, leftovers)
     needed_ore = 0
     for basic_ingredient in basic_ingredients:
         needed_basic_ingredient = basic_ingredients[basic_ingredient]
@@ -74,6 +74,10 @@ def _calculate_basic_ingredients(reactions: Dict[str, Tuple[Dict[str, int], int]
 def main(input_file):
     reactions = parse_file(input_file)
     print(f'Part 1 (needed ore for one FUEL: {calculate_ore(reactions)}')
+
+    # NOTE: The value below obtained by simple (manual) search, do it programmatically
+    fuel = 3126714
+    print(f'Part 2: FUEL produced with 1 trillion ore: {calculate_ore(reactions, fuel)}')
 
 
 if __name__ == '__main__':
